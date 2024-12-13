@@ -1,0 +1,14 @@
+services:
+  hellocoop.route_subscriber:
+    class: Drupal\hellocoop\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
+  hellocoop.cache_clear_subscriber:
+    class: 'Drupal\hellocoop\EventSubscriber\CacheClearSubscriber'
+    tags:
+      - { name: 'event_subscriber' }
+  hellocoop.hello_request:
+    class: Drupal\hellocoop\HelloRequest\HelloRequest
+    arguments: ['@request_stack']
+  hellocoop.hello_response:
+    class: Drupal\hellocoop\HelloResponse\HelloResponse

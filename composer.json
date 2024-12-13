@@ -1,0 +1,22 @@
+{
+    "name": "drupal/hellocoop",
+    "type": "drupal-module",
+    "description": "Hellō Identity Provider, enables users to register and log in using their choice of popular social logins, email, or phone—without tracking them.",
+    "homepage": "https://drupal.org/project/hellocoop",
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Unnikrishnan Bhargava kurup",
+            "homepage": "https://www.drupal.org/u/unnikrishnan",
+            "role": "Maintainer"
+        }
+    ],
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/hellocoop",
+        "source": "https://git.drupalcode.org/project/hellocoop"
+    },
+    "require": {
+        "unnikrishnanbhargavakurup/hellocoop": "^0.0.1"
+    }
+}

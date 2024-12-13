@@ -1,0 +1,15 @@
+hellocoop_config_form:
+  path: '/admin/config/hellocoop'
+  defaults:
+    _form: '\Drupal\hellocoop\Form\HelloCoopConfigForm'
+    _title: 'HelloCoop Configuration'
+  requirements:
+    _permission: 'administer site configuration'
+hellocoop.api_endpoint:
+  path: '/api/hellocoop'
+  defaults:
+    _controller: '\Drupal\hellocoop\Controller\ApiController::handle'
+    _title: 'API Endpoint'
+  requirements:
+    _permission: 'access content'
+
