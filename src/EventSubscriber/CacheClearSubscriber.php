@@ -14,7 +14,7 @@ class CacheClearSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    // Subscribe to the config save event
+    // Subscribe to the config save event.
     $events[ConfigEvents::SAVE][] = ['onConfigSave'];
     return $events;
   }
@@ -25,10 +25,11 @@ class CacheClearSubscriber implements EventSubscriberInterface {
   public function onConfigSave($event) {
     $config_name = $event->getConfig()->getName();
 
-    // Check if the 'hellocoop.settings' configuration was saved
+    // Check if the 'hellocoop.settings' configuration was saved.
     if ($config_name == 'hellocoop.settings') {
-      // Rebuild the route cache
+      // Rebuild the route cache.
       \Drupal::service('router.builder')->rebuild();
     }
   }
+
 }

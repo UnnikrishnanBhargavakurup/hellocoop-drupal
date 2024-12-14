@@ -8,28 +8,31 @@ use Drupal\hellocoop\HelloRequest\HelloRequestInterface;
 use Drupal\hellocoop\HelloResponse\HelloResponseInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * For handling callbak request from hellocoop.
+ */
 class HelloCoopController extends ControllerBase {
 
   /**
    * The HelloRequest service.
    *
-   * @var HelloRequestInterface
+   * @var \Drupal\hellocoop\HelloRequest\HelloRequestInterface
    */
   protected $helloRequest;
 
   /**
    * The HelloResponse service.
    *
-   * @var HelloResponseInterface
+   * @var \Drupal\hellocoop\HelloResponse\HelloResponseInterface
    */
   protected $helloResponse;
 
   /**
    * Constructs a HelloCoopController object.
    *
-   * @param HelloRequestInterface $helloRequest
+   * @param \Drupal\hellocoop\HelloRequest\HelloRequestInterface $helloRequest
    *   The HelloRequest service.
-   * @param HelloResponseInterface $helloResponse
+   * @param \Drupal\hellocoop\HelloResponse\HelloResponseInterface $helloResponse
    *   The HelloResponse service.
    */
   public function __construct(HelloRequestInterface $helloRequest, HelloResponseInterface $helloResponse) {
@@ -60,7 +63,7 @@ class HelloCoopController extends ControllerBase {
       'param' => $param,
     ]);
 
-    return new JsonResponse(json_decode($response, true));
+    return new JsonResponse(json_decode($response, TRUE));
   }
 
 }

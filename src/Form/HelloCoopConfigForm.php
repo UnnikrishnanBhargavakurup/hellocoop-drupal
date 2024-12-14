@@ -5,6 +5,9 @@ namespace Drupal\hellocoop\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
+/**
+ * For hellocoop configurations.
+ */
 class HelloCoopConfigForm extends ConfigFormBase {
 
   /**
@@ -66,4 +69,5 @@ class HelloCoopConfigForm extends ConfigFormBase {
 
     parent::submitForm($form, $form_state);
   }
+
 }
