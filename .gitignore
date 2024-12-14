@@ -1,0 +1,32 @@
+# Ignore composer.lock and vendor directory (for project-level composer installs)
+composer.lock
+/vendor/
+
+# Ignore module build and distribution files
+/build/
+/dist/
+
+# Ignore IDE/editor specific files
+.vscode/
+.idea/
+*.iml
+
+# Ignore temporary files from editors
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Ignore PHP_CodeSniffer and other code quality tool artifacts
+*.php_cs.cache
+phpcs.xml
+
+# Ignore PHPUnit and other test framework files
+phpunit.xml
+phpunit.xml.dist
+
+# Ignore log files
+*.log
+
+# Ignore Drush configuration files (if not needed)
+.drush/
