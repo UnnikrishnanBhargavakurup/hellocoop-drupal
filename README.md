@@ -11,7 +11,7 @@ This module integrates the [Hellō Identity Provider](https://www.hello.coop/) i
 - **Easy Configuration**: Provides a simple interface to configure API credentials and other settings.
 
 ## Requirements
-- Drupal 9.x or 10.x
+- Drupal 9.x or 10.x or 11.x
 - PHP 7.4 or higher
 - [Hellocoop PHP Library](https://github.com/UnnikrishnanBhargavakurup/hellocoop)
 

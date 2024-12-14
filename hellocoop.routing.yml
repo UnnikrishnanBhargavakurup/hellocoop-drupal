@@ -1,5 +1,5 @@
 hellocoop_config_form:
-  path: '/admin/config/hellocoop'
+  path: '/admin/config/people/hellocoop'
   defaults:
     _form: '\Drupal\hellocoop\Form\HelloCoopConfigForm'
     _title: 'HelloCoop Configuration'
