@@ -1,5 +1,7 @@
 # Hellocoop Drupal Module
 
+**Note: This module is not production-ready and is still under active development.**
+
 This module integrates the [Hellō Identity Provider](https://www.hello.coop/) into Drupal, enabling seamless user authentication using Hellō’s cloud identity wallet. It leverages the Hellocoop PHP library to provide support for social logins, email, and phone-based authentication while prioritizing user privacy.
 
 ## Features
@@ -35,10 +37,6 @@ This module integrates the [Hellō Identity Provider](https://www.hello.coop/) i
    - **Secret Key**: Generate a 32-byte hex key using `openssl rand -hex 32`.
 
 3. Save the configuration.
-
-### Step 3: Enable Routing
-Ensure your site’s routing system correctly maps the Hellocoop API endpoint:
-- For example, if the API route is `/api/hellocoop`, ensure it is accessible and routed to the Hellocoop handler.
 
 ## Usage
 
