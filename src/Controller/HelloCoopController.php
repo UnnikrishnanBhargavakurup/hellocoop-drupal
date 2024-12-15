@@ -4,65 +4,118 @@ namespace Drupal\hellocoop\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\hellocoop\HelloRequest\HelloRequestInterface;
-use Drupal\hellocoop\HelloResponse\HelloResponseInterface;
+use HelloCoop\HelloRequest\HelloRequestInterface;
+use HelloCoop\HelloResponse\HelloResponseInterface;
+use HelloCoop\Renderers\PageRendererInterface;
+use HelloCoop\Config\ConfigInterface;
+use HelloCoop\Config\HelloConfig;
+use HelloCoop\HelloClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * For handling callbak request from hellocoop.
+ * For handling callback requests from HelloCoop.
  */
 class HelloCoopController extends ControllerBase {
 
   /**
    * The HelloRequest service.
    *
-   * @var \Drupal\hellocoop\HelloRequest\HelloRequestInterface
+   * @var \HelloCoop\HelloRequest\HelloRequestInterface
    */
-  protected $helloRequest;
+  protected HelloRequestInterface $helloRequest;
 
   /**
    * The HelloResponse service.
    *
-   * @var \Drupal\hellocoop\HelloResponse\HelloResponseInterface
+   * @var \HelloCoop\HelloResponse\HelloResponseInterface
    */
-  protected $helloResponse;
+  protected HelloResponseInterface $helloResponse;
+
+  /**
+   * The PageRenderer service.
+   *
+   * @var \HelloCoop\Renderers\PageRendererInterface
+   */
+  protected PageRendererInterface $pageRenderer;
+
+  /**
+   * The HelloConfig service.
+   *
+   * @var \HelloCoop\Config\ConfigInterface
+   */
+  protected ConfigInterface $helloConfig;
+
+  /**
+   * The HelloClient service.
+   *
+   * @var \HelloCoop\HelloClient
+   */
+  protected HelloClient $helloClient;
 
   /**
    * Constructs a HelloCoopController object.
    *
-   * @param \Drupal\hellocoop\HelloRequest\HelloRequestInterface $helloRequest
+   * @param \HelloCoop\HelloRequest\HelloRequestInterface $helloRequest
    *   The HelloRequest service.
-   * @param \Drupal\hellocoop\HelloResponse\HelloResponseInterface $helloResponse
+   * @param \HelloCoop\HelloResponse\HelloResponseInterface $helloResponse
    *   The HelloResponse service.
+   * @param \HelloCoop\Renderers\PageRendererInterface $pageRenderer
+   *   The PageRenderer service.
+   * @param \HelloCoop\Config\ConfigInterface $helloConfig
+   *   The HelloConfig service.
+   * @param \HelloCoop\HelloClient $helloClient
+   *   The HelloClient service.
    */
-  public function __construct(HelloRequestInterface $helloRequest, HelloResponseInterface $helloResponse) {
+  public function __construct(
+    HelloRequestInterface $helloRequest,
+    HelloResponseInterface $helloResponse,
+    PageRendererInterface $pageRenderer,
+    ConfigInterface $helloConfig,
+    HelloClient $helloClient,
+  ) {
     $this->helloRequest = $helloRequest;
     $this->helloResponse = $helloResponse;
+    $this->pageRenderer = $pageRenderer;
+    $this->helloConfig = $helloConfig;
+    $this->helloClient = $helloClient;
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
+    // Fetch the configuration values.
+    $config = \Drupal::config('hellocoop.settings');
+    $apiRoute = $config->get('api_route');
+    $appId = $config->get('app_id');
+    $secret = $config->get('secret');
+
+    // Create the HelloConfig service with the values.
+    $helloConfig = new HelloConfig(
+      $apiRoute,
+      $appId,
+      $secret
+    );
+
+    // Inject the necessary services.
     return new static(
       $container->get('hellocoop.hello_request'),
-      $container->get('hellocoop.hello_response')
+      $container->get('hellocoop.hello_response'),
+      $container->get('hellocoop.page_renderer'),
+    // Inject the HelloConfig with the values.
+      $helloConfig,
+      $container->get('hellocoop.hello_client')
     );
   }
 
   /**
-   * Handles API requests.
+   * Handles Hello routes.
    */
   public function handle() {
-    // Example of using HelloRequest to fetch a query parameter.
-    $param = $this->helloRequest->fetch('example_param', 'default_value');
+    $this->helloClient->route();
 
-    // Example of using HelloResponse to create a response.
-    $response = $this->helloResponse->json([
-      'message' => 'Hello from the API!',
-      'param' => $param,
-    ]);
-
+    // Assuming the response is an array, it should be properly converted.
+    $response = $this->helloResponse->json([]);
     return new JsonResponse(json_decode($response, TRUE));
   }
 

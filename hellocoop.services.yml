@@ -8,7 +8,17 @@ services:
     tags:
       - { name: 'event_subscriber' }
   hellocoop.hello_request:
-    class: Drupal\hellocoop\HelloRequest\HelloRequest
-    arguments: ['@request_stack']
+    class: 'HelloCoop\HelloRequest\HelloRequestService'
+  
   hellocoop.hello_response:
-    class: Drupal\hellocoop\HelloResponse\HelloResponse
+    class: 'HelloCoop\HelloResponse\HelloResponseService'
+  
+  hellocoop.page_renderer:
+    class: 'HelloCoop\Renderers\PageRenderer'
+  
+  hellocoop.config:
+    class: 'HelloCoop\Config\HelloConfig'
+  
+  hellocoop.hello_client:
+    class: 'HelloCoop\HelloClient'
+    arguments: ['@hellocoop.config', '@hellocoop.hello_request', '@hellocoop.hello_response', '@hellocoop.page_renderer']
