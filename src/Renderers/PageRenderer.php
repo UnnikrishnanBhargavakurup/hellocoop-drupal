@@ -56,6 +56,7 @@ class PageRenderer implements PageRendererInterface {
     return $this->renderer->renderRoot($content);
   }
 
+  // phpcs:disable
   /**
    * {@inheritdoc}
    */
@@ -68,6 +69,7 @@ class PageRenderer implements PageRendererInterface {
 
     return $this->renderer->renderRoot($content);
   }
+  // phpcs:enable
 
   /**
    * {@inheritdoc}

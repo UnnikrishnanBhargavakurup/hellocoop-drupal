@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function hellocoop_install() {
+  // Generate a random secret key.
+  $secret = bin2hex(random_bytes(32)); // 64-character hexadecimal string.
+
+  // Set default configuration values.
+  \Drupal::configFactory()->getEditable('hellocoop.settings')
+    ->set('api_route', '/api/hellocoop') // Default API route.
+    ->set('app_id', 'default_app_id')             // Default app ID.
+    ->set('secret', $secret)                      // Randomly generated secret.
+    ->save();
+}

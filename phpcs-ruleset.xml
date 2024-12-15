@@ -28,5 +28,4 @@
     <!-- Complains about config entity types. -->
     <exclude name="Drupal.NamingConventions.ValidVariableName.LowerCamelName"/>
   </rule>
-
 </ruleset>

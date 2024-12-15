@@ -1,0 +1,13 @@
+hellocoop.settings:
+  type: config_object
+  label: 'HelloCoop Settings'
+  mapping:
+    api_route:
+      type: string
+      label: 'API Route'
+    app_id:
+      type: string
+      label: 'Application ID'
+    secret:
+      type: string
+      label: 'Secret Key'

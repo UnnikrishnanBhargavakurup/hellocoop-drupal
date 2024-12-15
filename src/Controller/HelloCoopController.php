@@ -8,9 +8,9 @@ use HelloCoop\HelloRequest\HelloRequestInterface;
 use HelloCoop\HelloResponse\HelloResponseInterface;
 use HelloCoop\Renderers\PageRendererInterface;
 use HelloCoop\Config\ConfigInterface;
-use HelloCoop\Config\HelloConfig;
 use HelloCoop\HelloClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Drupal;
 
 /**
  * For handling callback requests from HelloCoop.
@@ -84,29 +84,24 @@ class HelloCoopController extends ControllerBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    // Fetch the configuration values.
-    $config = \Drupal::config('hellocoop.settings');
+    $config = Drupal::config('hellocoop.settings');
     $apiRoute = $config->get('api_route');
     $appId = $config->get('app_id');
     $secret = $config->get('secret');
-
-    // Create the HelloConfig service with the values.
-    $helloConfig = new HelloConfig(
-      $apiRoute,
-      $appId,
-      $secret
-    );
-
-    // Inject the necessary services.
+  
+    // Use the HelloConfigFactory service.
+    $configFactory = $container->get('hellocoop.config_factory');
+    $helloConfig = $configFactory->createConfig($apiRoute, $appId, $secret);
+  
     return new static(
       $container->get('hellocoop.hello_request'),
       $container->get('hellocoop.hello_response'),
       $container->get('hellocoop.page_renderer'),
-    // Inject the HelloConfig with the values.
       $helloConfig,
       $container->get('hellocoop.hello_client')
     );
   }
+  
 
   /**
    * Handles Hello routes.

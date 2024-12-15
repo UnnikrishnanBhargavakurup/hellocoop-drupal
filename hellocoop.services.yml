@@ -22,3 +22,7 @@ services:
   hellocoop.hello_client:
     class: 'HelloCoop\HelloClient'
     arguments: ['@hellocoop.config', '@hellocoop.hello_request', '@hellocoop.hello_response', '@hellocoop.page_renderer']
+    
+  hellocoop.config_factory:
+    class: 'Drupal\hellocoop\Service\HelloConfigFactory'
+    arguments: ['@some_dependency1', '@some_dependency2']

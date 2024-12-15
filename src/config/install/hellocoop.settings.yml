@@ -1,0 +1,3 @@
+api_route: '/api/hellocoop'
+app_id: 'your_app_id'
+secret: 'your_secret_key'
