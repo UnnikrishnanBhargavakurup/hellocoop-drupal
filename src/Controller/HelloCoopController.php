@@ -10,7 +10,7 @@ use HelloCoop\Renderers\PageRendererInterface;
 use HelloCoop\Config\ConfigInterface;
 use HelloCoop\HelloClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Drupal;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * For handling callback requests from HelloCoop.
@@ -84,15 +84,15 @@ class HelloCoopController extends ControllerBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    $config = Drupal::config('hellocoop.settings');
+    $config = \Drupal::config('hellocoop.settings');
     $apiRoute = $config->get('api_route');
     $appId = $config->get('app_id');
     $secret = $config->get('secret');
-  
+
     // Use the HelloConfigFactory service.
     $configFactory = $container->get('hellocoop.config_factory');
     $helloConfig = $configFactory->createConfig($apiRoute, $appId, $secret);
-  
+
     return new static(
       $container->get('hellocoop.hello_request'),
       $container->get('hellocoop.hello_response'),
@@ -102,6 +102,21 @@ class HelloCoopController extends ControllerBase {
     );
   }
   
+  /**
+   * Redirects to the custom login URL.
+   */
+  public function loginRedirect() {
+    $url = $this->helloConfig->getApiRoute() . '?op=login&target_uri=/profile&scope=openid+profile+nickname&provider_hint=github+gitlab';
+    return new RedirectResponse($url);
+  }
+
+  /**
+   * Redirects to the custom logout URL.
+   */
+  public function logoutRedirect() {
+    $url = $this->helloConfig->getApiRoute() . '?op=logout';
+    return new RedirectResponse($url);
+  }
 
   /**
    * Handles Hello routes.
