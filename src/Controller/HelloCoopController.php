@@ -101,7 +101,7 @@ class HelloCoopController extends ControllerBase {
       $container->get('hellocoop.hello_client')
     );
   }
-  
+
   /**
    * Redirects to the custom login URL.
    */

@@ -25,4 +25,4 @@ services:
     
   hellocoop.config_factory:
     class: 'Drupal\hellocoop\Service\HelloConfigFactory'
-    arguments: ['externalauth.externalauth']
+    arguments: ['@externalauth.externalauth']

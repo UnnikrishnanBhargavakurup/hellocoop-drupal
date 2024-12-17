@@ -39,4 +39,5 @@ class RouteSubscriber extends RouteSubscriberBase {
       ]);
     }
   }
+
 }

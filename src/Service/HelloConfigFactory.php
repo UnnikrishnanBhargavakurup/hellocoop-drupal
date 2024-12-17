@@ -4,7 +4,6 @@ namespace Drupal\hellocoop\Service;
 
 use HelloCoop\Config\HelloConfig;
 use Drupal\externalauth\ExternalAuthInterface;
-use Drupal;
 
 /**
  * Factory class for creating HelloConfig objects.
@@ -22,7 +21,7 @@ class HelloConfigFactory {
   /**
    * The second dependency for setting up callbacks.
    *
-   * @var ExternalAuthInterface
+   * @var \Drupal\externalauth\ExternalAuthInterface
    */
   protected ExternalAuthInterface $externalAuth;
 
@@ -30,7 +29,8 @@ class HelloConfigFactory {
    * Constructs a HelloConfigFactory object.
    *
    *   The first dependency for setting up callback functions.
-   * @param ExternalAuthInterface $externalAuth
+   *
+   * @param \Drupal\externalauth\ExternalAuthInterface $externalAuth
    *   The second dependency for setting up callback functions.
    */
   public function __construct(ExternalAuthInterface $externalAuth) {
@@ -45,7 +45,7 @@ class HelloConfigFactory {
    */
   public function loginCallback() {
     // Perform login logic using $this->someDependency1
-    //return $this->externalAuth->loginRegister();
+    // return $this->externalAuth->loginRegister();
   }
 
   /**
@@ -55,7 +55,7 @@ class HelloConfigFactory {
    *   The result of the logout callback logic.
    */
   public function logoutCallback() {
-    // Perform logout logic using $this->someDependency2
+    // Perform logout logic using $this->someDependency2.
     return user_logout();
   }
 
@@ -82,17 +82,19 @@ class HelloConfigFactory {
    */
   public function createConfig($apiRoute, $appId, $secret) {
     $config = new HelloConfig(
-      $apiRoute, 
-      $apiRoute . '?op=auth', 
+      $apiRoute,
+      $apiRoute . '?op=auth',
       $apiRoute . '?op=login',
       $apiRoute . '?op=logout',
-      false,
-      $appId, 
-      Drupal::request()->getSchemeAndHttpHost() . $apiRoute,
-      Drupal::request()->getHost(),
+      FALSE,
+      $appId,
+      \Drupal::request()->getSchemeAndHttpHost() . $apiRoute,
+      \Drupal::request()->getHost(),
       $secret,
-      [$this, 'loginCallback'], // Pass the login callback
-      [$this, 'logoutCallback'] // Pass the logout callback
+    // Pass the login callback.
+      [$this, 'loginCallback'],
+    // Pass the logout callback.
+      [$this, 'logoutCallback']
     );
 
     return $config;

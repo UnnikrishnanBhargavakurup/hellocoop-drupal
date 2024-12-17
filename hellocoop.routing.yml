@@ -8,7 +8,7 @@ hellocoop_config_form:
 hellocoop.api_endpoint:
   path: '/api/hellocoop'
   defaults:
-    _controller: '\Drupal\hellocoop\Controller\ApiController::handle'
+    _controller: '\Drupal\hellocoop\Controller\HelloCoopController::handle'
     _title: 'API Endpoint'
   requirements:
     _permission: 'access content'
