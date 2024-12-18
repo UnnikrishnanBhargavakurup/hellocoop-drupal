@@ -61,9 +61,10 @@ class HelloResponse implements HelloResponseInterface {
   /**
    * {@inheritdoc}
    */
-  public function redirect(string $url): void {
+  public function redirect(string $url): mixed {
     $this->response->headers->set('Location', $url);
     $this->response->setStatusCode(Response::HTTP_FOUND);
+    return $this->response;
   }
 
   /**

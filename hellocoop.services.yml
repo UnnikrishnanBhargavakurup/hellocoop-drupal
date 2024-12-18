@@ -8,16 +8,19 @@ services:
     tags:
       - { name: 'event_subscriber' }
   hellocoop.hello_request:
-    class: 'HelloCoop\HelloRequest\HelloRequestService'
+    class: 'Drupal\hellocoop\HelloRequest\HelloRequest'
+    arguments: ['@request_stack']
   
   hellocoop.hello_response:
-    class: 'HelloCoop\HelloResponse\HelloResponseService'
+    class: 'Drupal\hellocoop\HelloResponse\HelloResponse'
   
   hellocoop.page_renderer:
-    class: 'HelloCoop\Renderers\PageRenderer'
+    class: 'Drupal\hellocoop\Renderers\PageRenderer'
+    arguments: ['@renderer']
   
   hellocoop.config:
     class: 'HelloCoop\Config\HelloConfig'
+    factory: ['@hellocoop.config_factory', 'createConfig']
   
   hellocoop.hello_client:
     class: 'HelloCoop\HelloClient'
@@ -25,4 +28,4 @@ services:
     
   hellocoop.config_factory:
     class: 'Drupal\hellocoop\Service\HelloConfigFactory'
-    arguments: ['@externalauth.externalauth']
+    arguments: ['@externalauth.externalauth', '@file_system']

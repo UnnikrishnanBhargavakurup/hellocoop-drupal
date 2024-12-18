@@ -5,6 +5,7 @@
     "homepage": "https://drupal.org/project/hellocoop",
     "license": "MIT",
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "authors": [
         {
             "name": "Unnikrishnan Bhargava kurup",
@@ -17,7 +18,7 @@
         "source": "https://git.drupalcode.org/project/hellocoop"
     },
     "require": {
-        "unnikrishnanbhargavakurup/hellocoop": "^0.0.1"
+        "unnikrishnanbhargavakurup/hellocoop": "dev-dev"
     },
     "require-dev": {
         "drupal/coder": "8.3.x-dev"
