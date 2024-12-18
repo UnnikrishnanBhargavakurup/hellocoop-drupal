@@ -4,5 +4,4 @@ description: Hellō Identity Provider, enables users to register and log in usin
 core_version_requirement: ^9.5 || ^10 || ^11
 configure: hellocoop_config_form
 dependencies:
-  - drupal:externalauth
   # - unnikrishnanbhargavakurup/hellocoop

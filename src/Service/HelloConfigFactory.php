@@ -3,9 +3,11 @@
 namespace Drupal\hellocoop\Service;
 
 use HelloCoop\Config\HelloConfig;
-use Drupal\externalauth\ExternalAuthInterface;
 use Drupal\file\Entity\File;
+use Drupal\file\FileRepositoryInterface;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\file\FileInterface;
+use Drupal\user\Entity\User;
 
 /**
  * Factory class for creating HelloConfig objects.
@@ -21,34 +23,23 @@ use Drupal\Core\File\FileSystemInterface;
 class HelloConfigFactory {
 
   /**
-   * The second dependency for setting up callbacks.
-   *
-   * @var \Drupal\externalauth\ExternalAuthInterface
-   */
-  protected ExternalAuthInterface $externalAuth;
-
-  /**
    * The file system service.
    *
-   * @var \Drupal\Core\File\FileSystemInterface
+   * @var \Drupal\file\FileRepositoryInterface
    */
-  protected FileSystemInterface $fileSystem;
+  protected FileRepositoryInterface $fileRepository;
 
   /**
    * Constructs a HelloConfigFactory object.
    *
    * Initializes the dependencies required for setting up callback functions.
    *
-   * @param \Drupal\externalauth\ExternalAuthInterface $externalAuth
-   *   Used for registering or logging in the user from Hello Wallet.
-   * @param \Drupal\file\Entity\FileSystemInterface $fileSystem
+   * @param \Drupal\file\FileRepositoryInterface $fileRepository
    *   Used for saving the user's profile picture to Drupal.
    */
-  public function __construct(ExternalAuthInterface $externalAuth, FileSystemInterface $fileSystem) {
-    $this->externalAuth = $externalAuth;
-    $this->fileSystem = $fileSystem;
+  public function __construct(FileRepositoryInterface $fileRepository) {
+    $this->fileRepository = $fileRepository;
   }
-
 
   /**
    * Login synchronous callback function.
@@ -62,20 +53,39 @@ class HelloConfigFactory {
     }
 
     $payload = $helloWalletRespose['payload'];
-    $fileId = $this->saveExternalImageAsFile($payload['picture']);
 
-    $accountData = [];
-    $accountData['name'] = $payload['name'];
-    $accountData['email'] = $payload['email'];
-    $accountData['user_picture'] = [
-      'target_id' => $fileId,
-    ];
-    // Perform login logic using externalAuth.
-    $this->externalAuth->loginRegister(
-      $payload['email'],
-      'hellocoop',
-      $accountData
-    );
+    $user = \Drupal::entityTypeManager()
+      ->getStorage('user')
+      ->loadByProperties(['mail' => $payload['email']]);
+
+    $user = $user ? reset($user) : NULL;
+
+    if (!$user) {
+      // User doesn't exist, create a new one.
+      $user = User::create([
+        'name' => $payload['name'],
+        'mail' => $payload['email'],
+      // Active user.
+        'status' => 1,
+      ]);
+      $user->enforceIsNew();
+    }
+    else {
+      // User exists, update their name.
+      $user->set('name', $payload['name']);
+    }
+
+    if (!empty($payload['picture'])) {
+      $file = File::create([
+        'uri' => $this->saveExternalImageAsFile($payload['picture'])->getFileUri(),
+      ]);
+      $file->save();
+      $user->set('user_picture', $file->id());
+    }
+
+    $user->save();
+
+    user_login_finalize($user);
 
     return $helloWalletRespose;
   }
@@ -133,44 +143,15 @@ class HelloConfigFactory {
   /**
    * Private function to download an image from an external URL and return the file ID.
    *
-   * @param string $image_url
+   * @param string $url
    *   The external URL of the image.
    *
-   * @return int
-   *   The file ID of the saved image.
+   * @return FileInterface
+   *   Saved file 
    */
-  private function saveExternalImageAsFile(string $image_url) {
-    // Fetch the image data from the URL.
-    $image_data = file_get_contents($image_url);
-
-    // Check if the image was fetched successfully.
-    if ($image_data === FALSE) {
-      throw new \Exception('Unable to fetch image from URL: ' . $image_url);
-    }
-
-    // Generate a unique file name based on the image URL.
-    $file_name = basename($image_url);
-    // Directory for saving images.
-    $file_directory = 'public://user_pictures/';
-
-    // Ensure the directory exists.
-    $this->fileSystem->prepareDirectory($file_directory, FileSystemInterface::CREATE_DIRECTORY);
-    // Create the file path.
-    $file_path = $file_directory . $file_name;
-    // Save the image data to the file system.
-    file_put_contents($file_path, $image_data);
-    // Create the file entity.
-    $file = File::create([
-      'uri' => $file_path,
-    // Mark the file as permanent.
-      'status' => 1,
-    ]);
-
-    // Save the file entity.
-    $file->save();
-
-    // Return the file ID.
-    return $file->id();
+  private function saveExternalImageAsFile(string $url):FileInterface {
+    $data = (string) \Drupal::httpClient()->get($url)->getBody();
+    return $this->fileRepository->writeData($data, 'public://user_pictures/', FileSystemInterface::EXISTS_REPLACE);
   }
 
 }
