@@ -146,8 +146,8 @@ class HelloConfigFactory {
    * @param string $url
    *   The external URL of the image.
    *
-   * @return FileInterface
-   *   Saved file 
+   * @return \Drupal\file\Entity\FileInterface
+   *   Saved file
    */
   private function saveExternalImageAsFile(string $url):FileInterface {
     $data = (string) \Drupal::httpClient()->get($url)->getBody();

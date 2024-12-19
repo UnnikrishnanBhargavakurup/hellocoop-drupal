@@ -1,0 +1,6 @@
+custom_login:
+  version: 1.x
+  js:
+    js/custom_login.js: {}
+  dependencies:
+    - core/drupal
