@@ -43,15 +43,13 @@ class HelloConfigFactory {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager service.
-   * 
    * @param \Drupal\file\FileRepositoryInterface $fileRepository
    *   Used for saving the user's profile picture to Drupal.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    FileRepositoryInterface $fileRepository
-  ) 
-  {
+    FileRepositoryInterface $fileRepository,
+  ) {
     $this->entityTypeManager = $entityTypeManager;
     $this->fileRepository = $fileRepository;
   }
