@@ -1,0 +1,64 @@
+name: PHPUnit Test Suite
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd='mysqladmin ping --silent' --health-start-period=30s
+
+    steps:
+      # 1. Checkout the module code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # 2. Set up PHP with required extensions
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'  # Use the required PHP version
+          extensions: mbstring, intl, gd, curl, zip, opcache
+
+      # 3. Install Composer
+      - name: Install Composer
+        run: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+      # 4. Install Drupal and module dependencies
+      - name: Install dependencies with Composer
+        run: |
+          composer require drupal/core-recommended:^9.4 --dev
+          composer install
+
+      # 5. Set up the Drupal database
+      - name: Set up the Drupal database
+        run: |
+          # Configure settings
+          cp sites/default/default.services.yml sites/default/services.yml
+          cp sites/default/default.settings.php sites/default/settings.php
+          chmod 777 sites/default
+          # Install Drupal with a specific database URL
+          drush si standard -y --db-url=mysql://root:root@localhost/hellocoop --site-name=Test
+
+      # 6. Enable the required module (hellocoop) for testing
+      - name: Enable the module
+        run: |
+          drush en hellocoop -y
+
+      # 7. Run PHPUnit tests
+      - name: Run PHPUnit tests
+        run: |
+          ./vendor/bin/phpunit --configuration modules/custom/hellocoop/phpunit.xml

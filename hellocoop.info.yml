@@ -3,5 +3,3 @@ type: module
 description: Hellō Identity Provider, enables users to register and log in using their choice of popular social logins, email, or phone—without tracking them.
 core_version_requirement: ^9.5 || ^10 || ^11
 configure: hellocoop_config_form
-dependencies:
-  # - unnikrishnanbhargavakurup/hellocoop

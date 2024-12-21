@@ -8,6 +8,7 @@ use Drupal\file\FileRepositoryInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\FileInterface;
 use Drupal\user\Entity\User;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * Factory class for creating HelloConfig objects.
@@ -22,6 +23,14 @@ use Drupal\user\Entity\User;
  */
 class HelloConfigFactory {
 
+
+  /**
+   * The entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected EntityTypeManagerInterface $entityTypeManager;
+
   /**
    * The file system service.
    *
@@ -32,12 +41,18 @@ class HelloConfigFactory {
   /**
    * Constructs a HelloConfigFactory object.
    *
-   * Initializes the dependencies required for setting up callback functions.
-   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager service.
+   * 
    * @param \Drupal\file\FileRepositoryInterface $fileRepository
    *   Used for saving the user's profile picture to Drupal.
    */
-  public function __construct(FileRepositoryInterface $fileRepository) {
+  public function __construct(
+    EntityTypeManagerInterface $entityTypeManager,
+    FileRepositoryInterface $fileRepository
+  ) 
+  {
+    $this->entityTypeManager = $entityTypeManager;
     $this->fileRepository = $fileRepository;
   }
 
@@ -54,7 +69,7 @@ class HelloConfigFactory {
 
     $payload = $helloWalletRespose['payload'];
 
-    $user = \Drupal::entityTypeManager()
+    $user = $this->entityTypeManager
       ->getStorage('user')
       ->loadByProperties(['mail' => $payload['email']]);
 

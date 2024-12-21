@@ -28,4 +28,4 @@ services:
     
   hellocoop.config_factory:
     class: 'Drupal\hellocoop\Service\HelloConfigFactory'
-    arguments: ['@file.repository']
+    arguments: ['@entity_type.manager', '@file.repository']
