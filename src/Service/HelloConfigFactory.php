@@ -116,7 +116,7 @@ class HelloConfigFactory {
    *
    * This method creates a new HelloConfig object, sets up the required
    * API route, app ID, and secret key, and injects callback functions using
-   * for login and logout functionalities
+   * for login and logout functionalities.
    *
    * The callbacks are functions that are executed when specific actions are
    * triggered by the HelloConfig instance. The dependencies provide the logic
