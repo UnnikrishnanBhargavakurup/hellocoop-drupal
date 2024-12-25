@@ -87,6 +87,35 @@ class HelloCoopConfigForm extends ConfigFormBase {
     $form['secret']['#prefix'] = '<div id="secret-key-wrapper">';
     $form['secret']['#suffix'] = '</div>';
 
+    // Field for provider hint checkboxes.
+    $form['provider_hint'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Provider Hint'),
+      '#description' => $this->t('Select the providers to include.'),
+      '#options' => [
+        'apple' => $this->t('Apple'),
+        'discord' => $this->t('Discord'),
+        'facebook' => $this->t('Facebook'),
+        'github' => $this->t('GitHub'),
+        'gitlab' => $this->t('GitLab'),
+        'google' => $this->t('Google'),
+        'twitch' => $this->t('Twitch'),
+        'twitter' => $this->t('Twitter'),
+        'tumblr' => $this->t('Tumblr'),
+        'mastodon' => $this->t('Mastodon'),
+        'microsoft' => $this->t('Microsoft'),
+        'line' => $this->t('LINE'),
+        'wordpress' => $this->t('WordPress'),
+        'yahoo' => $this->t('Yahoo'),
+        'phone' => $this->t('Phone'),
+        'ethereum' => $this->t('Ethereum'),
+        'qrcode' => $this->t('QR Code'),
+        'apple--' => $this->t('Apple--'),
+        'microsoft--' => $this->t('Microsoft--'),
+      ],
+      '#default_value' => $config->get('provider_hint') ?? ['github', 'google', 'twitter'],
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -135,6 +164,7 @@ class HelloCoopConfigForm extends ConfigFormBase {
       ->set('api_route', $form_state->getValue('api_route'))
       ->set('app_id', $form_state->getValue('app_id'))
       ->set('secret', $form_state->getValue('secret'))
+      ->set('provider_hint', array_filter($form_state->getValue('provider_hint')))
       ->save();
 
     parent::submitForm($form, $form_state);

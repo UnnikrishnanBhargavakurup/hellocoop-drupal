@@ -1,12 +1,33 @@
 <?php
 
+/**
+ * @file
+ * Contains hook implementations for the HellōCoop module.
+ *
+ * This file includes hooks used to customize or extend the behavior of forms
+ * and other functionalities within the HellōCoop module.
+ */
+
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Implements hook_form_alter().
+ * Alters the user login form to add a custom login button and attach a custom library.
+ *
+ * This function modifies the 'user_login_form' to include a custom button labeled
+ * "Continue with Hellō." Additionally, it attaches a custom JavaScript library
+ * and sets a `drupalSettings` parameter to provide the base API route.
+ *
+ * @param array $form
+ *   The form array that is being altered.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The current state of the form.
+ * @param string $form_id
+ *   The unique ID of the form being altered.
  */
 function hellocoop_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  // Check if the form being altered is the user login form.
   if ($form_id === 'user_login_form') {
+    // Add a custom login button.
     $form['actions']['custom_login_button'] = [
       '#type' => 'button',
       '#value' => t('ō&nbsp;&nbsp;&nbsp;Continue with Hellō'),
@@ -16,12 +37,22 @@ function hellocoop_form_alter(array &$form, FormStateInterface $form_state, $for
       '#weight' => 10,
     ];
 
+    // Fetch configuration settings for the Hellō API route.
     $config = \Drupal::config('hellocoop.settings');
-    $apiRoute = $config->get('api_route');
+    $api_route = $config->get('api_route');
 
+    $scope = ['openid', 'profile', 'nickname'];
+    $provider_hint = $config->get('provider_hint');
 
-    // Attach a custom JavaScript library and pass the base URL.
+    // Attach a custom JavaScript library and pass the base URL via drupalSettings.
     $form['#attached']['library'][] = 'hellocoop/custom_login';
-    $form['#attached']['drupalSettings']['hellocoop']['baseUrl'] = \Drupal::request()->getSchemeAndHttpHost() . $apiRoute;
+    $form['#attached']['drupalSettings']['hellocoop']['baseUrl'] =
+    \Drupal::request()->getSchemeAndHttpHost() . $api_route;
+
+    $form['#attached']['drupalSettings']['hellocoop']['scope'] =
+      implode('+', $scope);
+
+    $form['#attached']['drupalSettings']['hellocoop']['provider_hint'] =
+      implode('+', $provider_hint);
   }
 }
