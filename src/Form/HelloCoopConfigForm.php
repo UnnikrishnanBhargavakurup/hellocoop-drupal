@@ -32,6 +32,15 @@ class HelloCoopConfigForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('hellocoop.settings');
 
+    // Check if the 'client_id' parameter is present in the URL.
+    $request = \Drupal::request();
+    $client_id = $request->query->get('client_id');
+
+    if (!empty($client_id)) {
+      // Update the App ID in configuration.
+      $config->set('app_id', $client_id)->save();
+    }
+
     $form['api_route'] = [
       '#type' => 'textfield',
       '#title' => $this->t('API Route'),
