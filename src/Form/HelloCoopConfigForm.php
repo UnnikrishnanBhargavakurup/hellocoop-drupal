@@ -100,6 +100,8 @@ class HelloCoopConfigForm extends ConfigFormBase {
       ['absolute' => TRUE]
     );
 
+    $host_url = \Drupal::request()->getSchemeAndHttpHost();
+
     $logo_path = theme_get_setting('logo');
     $logo_url = '';
 
@@ -110,11 +112,19 @@ class HelloCoopConfigForm extends ConfigFormBase {
       }
       else {
         // Convert the relative URL to an absolute one.
-        $logo_url = \Drupal::request()->getSchemeAndHttpHost() . $logo_path['url'];
+        $logo_url = $host_url . $logo_path['url'];
       }
     }
 
-    return 'https://quickstart.hello.coop/?response_uri=' . urlencode($response_uri->toString()) . '&image_uri=' . urlencode($logo_url);
+    $responseUri = urlencode($response_uri->toString());
+    $imageUri = urlencode($logo_url);
+    $redirectUri = urlencode($host_url);
+    return sprintf(
+        'https://quickstart.hello.coop/?response_uri=%s&image_uri=%s&redirect_uri=%s',
+        $responseUri,
+        $imageUri,
+        $redirectUri
+    );
   }
 
   /**
