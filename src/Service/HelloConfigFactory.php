@@ -16,10 +16,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  * This class is responsible for creating instances of the HelloConfig class,
  * configuring them with API route, app ID, and secret values, and injecting
  * dependencies for callback functions. These callbacks are used by the
- * HelloConfig instance to perform additional logic.
- *
- * The factory class ensures that dependencies are injected correctly and
- * provides a clean separation between configuration creation and business logic.
+ * HelloConfig instance to perform login and logout functionalities.
  */
 class HelloConfigFactory {
 
@@ -119,7 +116,7 @@ class HelloConfigFactory {
    *
    * This method creates a new HelloConfig object, sets up the required
    * API route, app ID, and secret key, and injects callback functions using
-   * the provided dependencies.
+   * for login and logout functionalities
    *
    * The callbacks are functions that are executed when specific actions are
    * triggered by the HelloConfig instance. The dependencies provide the logic

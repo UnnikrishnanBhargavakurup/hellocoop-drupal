@@ -7,10 +7,67 @@ function hellocoop_install() {
   // Generate a random secret key.
   $secret = bin2hex(random_bytes(32)); // 64-character hexadecimal string.
 
-  // Set default configuration values.
+  // Retrieve the site URL.
+  $site_url = \Drupal::request()->getSchemeAndHttpHost();
+  $api_route = '/api/hellocoop';
+  $response_uri = $site_url . $api_route;
+
+  // Get the site default logo URL.
+  $logo_uri = theme_get_setting('logo') ?? ($site_url . '/themes/custom/default_theme/logo.svg');
+
+  // Create client ID using the private function.
+  $client_id = _hellocoop_create_client_id($response_uri, $logo_uri);
+
+  // Save the configuration values.
   \Drupal::configFactory()->getEditable('hellocoop.settings')
-    ->set('api_route', '/api/hellocoop') // Default API route.
-    ->set('app_id', 'default_app_id')             // Default app ID.
-    ->set('secret', $secret)                      // Randomly generated secret.
+    ->set('api_route', $api_route) // Default API route.
+    ->set('app_id', $client_id)    // Dynamic app ID from Quickstart.
+    ->set('secret', $secret)      // Generated secret.
     ->save();
+}
+
+/**
+ * Private helper function to create a client ID using Quickstart API.
+ *
+ * @param string $response_uri
+ *   The response URI for the Quickstart API.
+ * @param string $logo_uri
+ *   The logo URI for the application.
+ *
+ * @return string
+ *   The client ID if successfully created, otherwise a default app ID.
+ */
+function _hellocoop_create_client_id($response_uri, $logo_uri) {
+  $quickstart_url = 'https://quickstart.hello.coop/';
+  $query_params = [
+    'response_uri' => $response_uri,
+    'image_uri' => $logo_uri,
+  ];
+
+  // Build the request URL.
+  $query_string = http_build_query($query_params);
+  $request_url = $quickstart_url . '?' . $query_string;
+
+  // Send the request using cURL.
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $request_url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+  $response = curl_exec($ch);
+  $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  curl_close($ch);
+
+  if ($http_code === 200 && $response) {
+    // Parse the client_id from the response URI.
+    $response_uri_parsed = parse_url($response_uri);
+    parse_str($response_uri_parsed['query'] ?? '', $query_params);
+
+    return $query_params['client_id'] ?? 'default_app_id';
+  }
+
+  // Log an error if the API call fails.
+  \Drupal::logger('hellocoop')->error('Quickstart API request failed with status code @code.', ['@code' => $http_code]);
+
+  return 'default_app_id';
 }

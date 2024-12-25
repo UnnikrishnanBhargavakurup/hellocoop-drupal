@@ -49,10 +49,27 @@ class HelloCoopConfigForm extends ConfigFormBase {
     $form['secret'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Secret Key'),
-      '#description' => $this->t('Provide a 32-byte hex secret key (use: openssl rand -hex 32).'),
+      '#description' => $this->t('Click the button below to generate a new secret key.'),
       '#default_value' => $config->get('secret'),
       '#required' => TRUE,
+      '#attributes' => [
+        'readonly' => 'readonly',
+        'style' => 'background-color: #f9f9f9; color: #6c757d;',
+      ],
     ];
+
+    $form['update_secret'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Update Secret Key'),
+      '#submit' => ['::updateSecretKey'],
+      '#ajax' => [
+        'callback' => '::updateSecretKeyAjaxCallback',
+        'wrapper' => 'secret-key-wrapper',
+      ],
+    ];
+
+    $form['secret']['#prefix'] = '<div id="secret-key-wrapper">';
+    $form['secret']['#suffix'] = '</div>';
 
     return parent::buildForm($form, $form_state);
   }
@@ -68,6 +85,34 @@ class HelloCoopConfigForm extends ConfigFormBase {
       ->save();
 
     parent::submitForm($form, $form_state);
+  }
+
+  /**
+   * Custom submit handler to update the secret key dynamically.
+   */
+  public function updateSecretKey(array &$form, FormStateInterface $form_state) {
+    $new_secret = bin2hex(random_bytes(32));
+
+    // Update the secret key in configuration.
+    $this->config('hellocoop.settings')
+      ->set('secret', $new_secret)
+      ->save();
+
+    // Store the new secret in the form state for the current rebuild.
+    $form_state->setRebuild(TRUE);
+    $form_state->set('new_secret', $new_secret); // Temporary storage for rebuild.
+  }
+
+  /**
+   * Ajax callback to update the secret key field.
+   */
+  public function updateSecretKeyAjaxCallback(array &$form, FormStateInterface $form_state) {
+    // Update the field value dynamically.
+    if ($new_secret = $form_state->get('new_secret')) {
+      $form['secret']['#value'] = $new_secret; // Update the #value property.
+    }
+
+    return $form['secret'];
   }
 
 }
