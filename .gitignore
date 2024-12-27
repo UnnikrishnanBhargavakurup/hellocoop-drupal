@@ -30,3 +30,11 @@ phpunit.xml.dist
 
 # Ignore Drush configuration files (if not needed)
 .drush/
+/.editorconfig
+/.gitattributes
+
+.ddev/
+/web/
+recipes
+reports
+.phpunit.result.cache

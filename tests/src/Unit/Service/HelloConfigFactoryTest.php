@@ -8,42 +8,47 @@ use Drupal\Core\Session\SessionManagerInterface;
 use Drupal\file\FileRepositoryInterface;
 use Drupal\file\FileInterface;
 use Drupal\user\UserInterface;
-use Drupal\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 
 /**
  * @coversDefaultClass \Drupal\hellocoop\Service\HelloConfigFactory
  * @group hellocoop
  */
-class HelloConfigFactoryTest extends UnitTestCase {
+class HelloConfigFactoryTest extends TestCase {
 
   /**
-  * The mocked entity type manager service.
-  *
-  * @var \Drupal\file\FileRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-  */
-  protected $fileRepository;  
+   * The mocked entity type manager service.
+   *
+   * @var \Drupal\file\FileRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
+   */
+  protected $fileRepository;
 
   /**
-  * The mocked entity type manager service.
-  *
-  * @var \Drupal\Core\Entity\EntityTypeManagerInterface|\PHPUnit\Framework\MockObject\MockObject
-  */
- protected $entityTypeManager;
+   * The mocked entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface|\PHPUnit\Framework\MockObject\MockObject
+   */
+  protected $entityTypeManager;
 
- /**
-  * The mocked entity type manager service.
-  *
-  * @var \Drupal\Core\Session\SessionManagerInterface|\PHPUnit\Framework\MockObject\MockObject
-  */
+  /**
+   * The mocked entity type manager service.
+   *
+   * @var \Drupal\Core\Session\SessionManagerInterface|\PHPUnit\Framework\MockObject\MockObject
+   */
   protected $sessionManager;
 
   /**
-  * The mocked entity type manager service.
-  *
-  * @var \Drupal\hellocoop\Service\HelloConfigFactory|\PHPUnit\Framework\MockObject\MockObject
-  */
+   * The mocked entity type manager service.
+   *
+   * @var \Drupal\hellocoop\Service\HelloConfigFactory|\PHPUnit\Framework\MockObject\MockObject
+   */
   protected $factory;
+  /**
+   * The container builder.
+   *
+   * @var \Drupal\Core\DependencyInjection\ContainerBuilder
+   */
   protected $container;
 
   /**
@@ -60,7 +65,7 @@ class HelloConfigFactoryTest extends UnitTestCase {
     $this->entityTypeManager = $this->createMock(EntityTypeManagerInterface::class);
     $this->sessionManager = $this->createMock(SessionManagerInterface::class);
 
-    //Create the container and set the services.
+    // Create the container and set the services.
     $this->container = new ContainerBuilder();
     $this->container->set('file.repository', $this->fileRepository);
     $this->container->set('entity_type.manager', $this->entityTypeManager);
@@ -71,7 +76,7 @@ class HelloConfigFactoryTest extends UnitTestCase {
 
     // Instantiate the service with the mocked dependencies.
     $this->factory = new HelloConfigFactory(
-      $this->entityTypeManager, 
+      $this->entityTypeManager,
       $this->fileRepository
     );
   }
@@ -96,10 +101,10 @@ class HelloConfigFactoryTest extends UnitTestCase {
 
     $entityStorage = $this->createMock('Drupal\Core\Entity\EntityStorageInterface');
 
-    // here we load user and file for profile pic.
+    // Here we load user and file for profile pic.
     $this->entityTypeManager->expects($this->exactly(2))
-    ->method('getStorage')
-    ->willReturn($entityStorage);
+      ->method('getStorage')
+      ->willReturn($entityStorage);
 
     $entityStorage->method('create')
       ->willReturn($userEntity);
@@ -114,6 +119,7 @@ class HelloConfigFactoryTest extends UnitTestCase {
             $this->assertEquals('name', $key);
             $this->assertEquals($payload['name'], $value);
             break;
+
           case 2:
             $this->assertEquals('user_picture', $key);
             $this->assertEquals($fileEntity->id(), $value);
@@ -149,4 +155,5 @@ class HelloConfigFactoryTest extends UnitTestCase {
     // Call the method being tested.
     $this->factory->logoutCallback();
   }
+
 }

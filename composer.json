@@ -24,7 +24,10 @@
     },
     "config": {
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "php-http/discovery": true,
+            "tbachert/spi": true,
+            "phpstan/extension-installer": true
         }
     },
     "autoload": {
@@ -40,7 +43,8 @@
         }
     },
     "require-dev": {
-        "phpstan/phpstan": "^2.0",
-        "squizlabs/php_codesniffer": "^3.11"
+        "squizlabs/php_codesniffer": "^3.11",
+        "drupal/core-dev": "^11.1",
+        "phpunit/php-code-coverage": "^10.1"
     }
 }
