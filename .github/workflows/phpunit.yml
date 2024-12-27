@@ -21,21 +21,25 @@ jobs:
     - name: Set up DDEV
       uses: ddev/github-action-setup-ddev@v1
 
-    # Step 3: Start DDEV
+    # Step 3: Configure DDEV
+    - name: Configure DDEV
+      run: ddev config --project-type=drupal --docroot=web --php-version=8.3 --corepack-enable --project-name=hellocoop
+
+    # Step 4: Start DDEV
     - name: Start DDEV
       run: ddev start
 
-    # Step 4: Install composer dependencies
+    # Step 5: Install composer dependencies
     - name: Install dependencies
       run: ddev composer install
 
-    # Step 5: Set up Drupal environment
+    # Step 6: Set up Drupal environment
     - name: Set up Drupal
       run: |
         ddev drush si --yes \
           --db-url=mysql://db:db@db/db \
           --site-name="Test Site"
 
-    # Step 6: Run PHPUnit tests
+    # Step 7: Run PHPUnit tests
     - name: Run PHPUnit tests
       run: ddev phpunit
