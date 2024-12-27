@@ -33,7 +33,6 @@ phpunit.xml.dist
 /.editorconfig
 /.gitattributes
 
-.ddev/
 /web/
 recipes
 reports
