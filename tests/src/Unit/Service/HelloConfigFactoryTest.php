@@ -129,56 +129,59 @@ class HelloConfigFactoryTest extends TestCase {
     $userEntity = $this->createMock(UserInterface::class);
     $fileEntity = $this->createMock(FileInterface::class);
 
+    $fileEntity
+      ->method('id')
+      ->willReturn('123');
+
+    $fileEntity
+      ->method('getFileUri')
+      ->willReturn('public://image.jpg');
+    
     $payload = [
-      'email' => 'test@example.com',
-      'name' => 'Test User',
-      'picture' => 'http://example.com/image.jpg',
+        'email' => 'test@example.com',
+        'name' => 'Test User',
+        'picture' => 'http://example.com/image.jpg',
     ];
 
     $response = ['payload' => $payload];
 
     $entityStorage = $this->createMock('Drupal\Core\Entity\EntityStorageInterface');
 
-    // Here we load user and file for profile pic.
-    $this->entityTypeManager->expects($this->exactly(2))
-      ->method('getStorage')
-      ->willReturn($entityStorage);
+    $this->entityTypeManager
+        ->method('getStorage')
+        ->willReturn($entityStorage);
 
     $entityStorage->method('create')
-      ->willReturn($userEntity);
+        ->willReturn($userEntity);
 
-    // Setting up exact expectations for 'set' method.
     $matcher = $this->exactly(2);
     $userEntity->expects($matcher)
-      ->method('set')
-      ->willReturnCallback(function (string $key, string $value) use ($matcher, $payload, $fileEntity) {
-        switch ($matcher->numberOfInvocations()) {
-          case 1:
-            $this->assertEquals('name', $key);
-            $this->assertEquals($payload['name'], $value);
-            break;
-
-          case 2:
-            $this->assertEquals('user_picture', $key);
-            $this->assertEquals($fileEntity->id(), $value);
-            break;
-        }
-      });
+        ->method('set')
+        ->willReturnCallback(function (string $key, ?string $value) use ($matcher, $payload, $fileEntity) {
+            $this->assertNotNull($value, "Value for key '$key' is null.");
+            switch ($matcher->numberOfInvocations()) {
+                case 1:
+                    $this->assertEquals('name', $key);
+                    $this->assertEquals($payload['name'], $value);
+                    break;
+                case 2:
+                    $this->assertEquals('user_picture', $key);
+                    $this->assertEquals($fileEntity->id(), $value);
+                    break;
+            }
+        });
 
     $userEntity->expects($this->once())
-      ->method('save');
+        ->method('save');
 
     $this->fileRepository->method('writeData')
-      ->willReturn($fileEntity);
+        ->willReturn($fileEntity);
 
-    $fileEntity->method('id')
-      ->willReturn(1);
-
-    // Call the method being tested.
     $result = $this->factory->loginCallback($response);
 
     $this->assertEquals($response, $result);
   }
+
 
   /**
    * Tests the logoutCallback method.

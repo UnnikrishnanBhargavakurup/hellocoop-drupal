@@ -67,7 +67,7 @@ class HelloConfigFactory {
    * @return array
    *   The modified or original response data.
    */
-  public function loginCallback(array $helloWalletResponse = []):array {
+  public function loginCallback(array $helloWalletResponse = []): array {
     if (empty($helloWalletResponse['payload'])) {
       return $helloWalletResponse;
     }
@@ -90,17 +90,26 @@ class HelloConfigFactory {
       $user->enforceIsNew();
     }
     else {
-      // Update the user's name if they already exist.
+      // Update the user's name.
       $user->set('name', $payload['name']);
     }
 
-    // Save the profile picture if provided.
+    // Save the profile picture if exist in the payload.
     if (!empty($payload['picture'])) {
-      $file = File::create([
-        'uri' => $this->saveExternalImageAsFile($payload['picture'])->getFileUri(),
-      ]);
-      $file->save();
-      $user->set('user_picture', $file->id());
+      $externalImage = $this->saveExternalImageAsFile($payload['picture']);
+      if ($externalImage && $externalImage->getFileUri()) {
+        $file = File::create([
+          'uri' => $externalImage->getFileUri(),
+        ]);
+        $file->save();
+        if ($file->id()) {
+          $user->set('user_picture', $file->id());
+        } else {
+          throw new \LogicException('Failed to save file entity or retrieve its ID.');
+        }
+      } else {
+        throw new \LogicException('Failed to save external image as file.');
+      }
     }
 
     // Save the user and finalize login.
@@ -115,7 +124,7 @@ class HelloConfigFactory {
    *
    * @return void
    */
-  public function logoutCallback():void {
+  public function logoutCallback(): void {
     user_logout();
   }
 
@@ -149,16 +158,21 @@ class HelloConfigFactory {
    * @param string $url
    *   The external image URL.
    *
-   * @return \Drupal\file\FileInterface
-   *   The saved file entity.
+   * @return \Drupal\file\FileInterface|null
+   *   The saved file entity or NULL on failure.
    */
-  private function saveExternalImageAsFile(string $url): FileInterface {
-    $data = (string) \Drupal::httpClient()->get($url)->getBody();
-    return $this->fileRepository->writeData(
-      $data,
-      'public://user_pictures/',
-      FileSystemInterface::EXISTS_REPLACE
-    );
+  private function saveExternalImageAsFile(string $url): ?FileInterface {
+    try {
+      $data = (string) \Drupal::httpClient()->get($url)->getBody();
+      return $this->fileRepository->writeData(
+        $data,
+        'public://user_pictures/' . uniqid('profile_', TRUE) . '.jpg',
+        FileSystemInterface::EXISTS_REPLACE
+      );
+    } catch (\Exception $e) {
+      \Drupal::logger('hellocoop')->error('Failed to save external image: @message', ['@message' => $e->getMessage()]);
+      return NULL;
+    }
   }
 
 }
