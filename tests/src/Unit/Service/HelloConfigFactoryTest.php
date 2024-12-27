@@ -1,13 +1,20 @@
 <?php
 
+/**
+ * @file
+ * Unit tests for the HelloConfigFactory service in the HelloCoop module.
+ */
+
 namespace Drupal\Tests\hellocoop\Unit\Service;
 
 use Drupal\hellocoop\Service\HelloConfigFactory;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityTypeRepositoryInterface;
 use Drupal\Core\Session\SessionManagerInterface;
 use Drupal\file\FileRepositoryInterface;
 use Drupal\file\FileInterface;
 use Drupal\user\UserInterface;
+use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 
@@ -18,7 +25,7 @@ use Drupal\Core\DependencyInjection\ContainerBuilder;
 class HelloConfigFactoryTest extends TestCase {
 
   /**
-   * The mocked entity type manager service.
+   * The mocked file repository service.
    *
    * @var \Drupal\file\FileRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
    */
@@ -32,18 +39,33 @@ class HelloConfigFactoryTest extends TestCase {
   protected $entityTypeManager;
 
   /**
-   * The mocked entity type manager service.
+   * The mocked entity type repository service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
+   */
+  protected $entityTypeRepository;
+
+  /**
+   * The mocked session manager service.
    *
    * @var \Drupal\Core\Session\SessionManagerInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $sessionManager;
 
   /**
-   * The mocked entity type manager service.
+   * The mocked HTTP client service.
    *
-   * @var \Drupal\hellocoop\Service\HelloConfigFactory|\PHPUnit\Framework\MockObject\MockObject
+   * @var \GuzzleHttp\ClientInterface|\PHPUnit\Framework\MockObject\MockObject
+   */
+  protected $httpClient;
+
+  /**
+   * The HelloConfigFactory service under test.
+   *
+   * @var \Drupal\hellocoop\Service\HelloConfigFactory
    */
   protected $factory;
+
   /**
    * The container builder.
    *
@@ -57,19 +79,36 @@ class HelloConfigFactoryTest extends TestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    // Create a mock EntityTypeManager object.
-    $this->entityTypeManager = $this->createMock(EntityTypeManagerInterface::class);
-
     // Create mocks for the required services.
     $this->fileRepository = $this->createMock(FileRepositoryInterface::class);
     $this->entityTypeManager = $this->createMock(EntityTypeManagerInterface::class);
+    $this->entityTypeRepository = $this->createMock(EntityTypeRepositoryInterface::class);
     $this->sessionManager = $this->createMock(SessionManagerInterface::class);
+
+    // Create the mock HTTP client and its response.
+    $this->httpClient = $this->createMock(Client::class);
+
+    $mockResponse = $this->createMock(\Psr\Http\Message\ResponseInterface::class);
+    $mockStream = $this->createMock(\Psr\Http\Message\StreamInterface::class);
+    // Define the behavior of the StreamInterface.
+    $mockStream->method('__toString')
+      ->willReturn('mocked image data');
+
+    // Define the behavior of the ResponseInterface.
+    $mockResponse->method('getBody')
+      ->willReturn($mockStream);
+
+    // Define the behavior of the `http_client` service.
+    $this->httpClient->method('get')
+      ->willReturn($mockResponse);
 
     // Create the container and set the services.
     $this->container = new ContainerBuilder();
     $this->container->set('file.repository', $this->fileRepository);
     $this->container->set('entity_type.manager', $this->entityTypeManager);
+    $this->container->set('entity_type.repository', $this->entityTypeRepository);
     $this->container->set('session_manager', $this->sessionManager);
+    $this->container->set('http_client', $this->httpClient);
 
     // Manually set the container in Drupal.
     \Drupal::setContainer($this->container);
@@ -87,7 +126,6 @@ class HelloConfigFactoryTest extends TestCase {
    * @covers ::loginCallback
    */
   public function testLoginCallback(): void {
-
     $userEntity = $this->createMock(UserInterface::class);
     $fileEntity = $this->createMock(FileInterface::class);
 

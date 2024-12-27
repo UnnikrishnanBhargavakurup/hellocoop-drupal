@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\hellocoop\Service\HelloConfigFactory.
+ *
+ * This file provides a factory service class for creating configured
+ * HelloConfig objects. It handles dependency injection and implements
+ * login and logout callback functionalities used by the HelloCoop module.
+ */
+
 namespace Drupal\hellocoop\Service;
 
 use HelloCoop\Config\HelloConfig;
@@ -13,13 +22,11 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 /**
  * Factory class for creating HelloConfig objects.
  *
- * This class is responsible for creating instances of the HelloConfig class,
- * configuring them with API route, app ID, and secret values, and injecting
- * dependencies for callback functions. These callbacks are used by the
- * HelloConfig instance to perform login and logout functionalities.
+ * This class creates instances of the HelloConfig class, configures them with
+ * API routes, app ID, and secret values, and injects dependencies for callback
+ * functions used for login and logout functionalities.
  */
 class HelloConfigFactory {
-
 
   /**
    * The entity type manager service.
@@ -29,7 +36,7 @@ class HelloConfigFactory {
   protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
-   * The file system service.
+   * The file repository service.
    *
    * @var \Drupal\file\FileRepositoryInterface
    */
@@ -41,11 +48,11 @@ class HelloConfigFactory {
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager service.
    * @param \Drupal\file\FileRepositoryInterface $fileRepository
-   *   Used for saving the user's profile picture to Drupal.
+   *   Used for saving user profile pictures.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    FileRepositoryInterface $fileRepository,
+    FileRepositoryInterface $fileRepository
   ) {
     $this->entityTypeManager = $entityTypeManager;
     $this->fileRepository = $fileRepository;
@@ -54,37 +61,40 @@ class HelloConfigFactory {
   /**
    * Login synchronous callback function.
    *
-   * @return mixed
-   *   The result of the login callback logic.
+   * @param array $helloWalletResponse
+   *   The response data from the Hello Wallet service.
+   *
+   * @return array
+   *   The modified or original response data.
    */
-  public function loginCallback(array $helloWalletRespose = []) {
-    if (isset($helloWalletRespose['payload']) === FALSE) {
-      return $helloWalletRespose;
+  public function loginCallback(array $helloWalletResponse = []):array {
+    if (empty($helloWalletResponse['payload'])) {
+      return $helloWalletResponse;
     }
 
-    $payload = $helloWalletRespose['payload'];
+    $payload = $helloWalletResponse['payload'];
 
-    $user = $this->entityTypeManager
-      ->getStorage('user')
+    // Load user by email.
+    $users = $this->entityTypeManager->getStorage('user')
       ->loadByProperties(['mail' => $payload['email']]);
 
-    $user = $user ? reset($user) : NULL;
+    $user = $users ? reset($users) : NULL;
 
+    // Create a new user if one doesn't exist.
     if (!$user) {
-      // User doesn't exist, create a new one.
       $user = User::create([
         'name' => $payload['name'],
         'mail' => $payload['email'],
-      // Active user.
-        'status' => 1,
+        'status' => 1, // Active user.
       ]);
       $user->enforceIsNew();
     }
     else {
-      // User exists, update their name.
+      // Update the user's name if they already exist.
       $user->set('name', $payload['name']);
     }
 
+    // Save the profile picture if provided.
     if (!empty($payload['picture'])) {
       $file = File::create([
         'uri' => $this->saveExternalImageAsFile($payload['picture'])->getFileUri(),
@@ -93,75 +103,62 @@ class HelloConfigFactory {
       $user->set('user_picture', $file->id());
     }
 
+    // Save the user and finalize login.
     $user->save();
-
     user_login_finalize($user);
 
-    return $helloWalletRespose;
+    return $helloWalletResponse;
   }
 
   /**
    * Logout synchronous callback function.
    *
-   * @return mixed
-   *   The result of the logout callback logic.
+   * @return void
    */
-  public function logoutCallback() {
-    // Perform logout logic here.
-    return user_logout();
+  public function logoutCallback():void {
+    user_logout();
   }
 
   /**
    * Creates a configured HelloConfig instance.
    *
-   * This method creates a new HelloConfig object, sets up the required
-   * API route, app ID, and secret key, and injects callback functions using
-   * for login and logout functionalities.
-   *
-   * The callbacks are functions that are executed when specific actions are
-   * triggered by the HelloConfig instance. The dependencies provide the logic
-   * for these actions.
-   *
    * @return \HelloCoop\Config\HelloConfig
-   *   The configured HelloConfig object with injected callbacks.
+   *   A configured HelloConfig object.
    */
   public function createConfig() {
     $config = \Drupal::config('hellocoop.settings');
-    $apiRoute = $config->get('api_route');
-    $appId = $config->get('app_id');
-    $secret = $config->get('secret');
 
-    $config = new HelloConfig(
-      $apiRoute,
-      $apiRoute . '?op=auth',
-      $apiRoute . '?op=login',
-      $apiRoute . '?op=logout',
+    return new HelloConfig(
+      $config->get('api_route'),
+      $config->get('api_route') . '?op=auth',
+      $config->get('api_route') . '?op=login',
+      $config->get('api_route') . '?op=logout',
       FALSE,
-      $appId,
-      \Drupal::request()->getSchemeAndHttpHost() . $apiRoute,
+      $config->get('app_id'),
+      \Drupal::request()->getSchemeAndHttpHost() . $config->get('api_route'),
       \Drupal::request()->getHost(),
-      $secret,
-    // Pass the login callback.
+      $config->get('secret'),
       [$this, 'loginCallback'],
-    // Pass the logout callback.
       [$this, 'logoutCallback']
     );
-
-    return $config;
   }
 
   /**
-   * Private function to download an image from an external URL and return the file ID.
+   * Saves an external image as a file.
    *
    * @param string $url
-   *   The external URL of the image.
+   *   The external image URL.
    *
-   * @return \Drupal\file\Entity\FileInterface
-   *   Saved file
+   * @return \Drupal\file\FileInterface
+   *   The saved file entity.
    */
-  private function saveExternalImageAsFile(string $url):FileInterface {
+  private function saveExternalImageAsFile(string $url): FileInterface {
     $data = (string) \Drupal::httpClient()->get($url)->getBody();
-    return $this->fileRepository->writeData($data, 'public://user_pictures/', FileSystemInterface::EXISTS_REPLACE);
+    return $this->fileRepository->writeData(
+      $data,
+      'public://user_pictures/',
+      FileSystemInterface::EXISTS_REPLACE
+    );
   }
 
 }
