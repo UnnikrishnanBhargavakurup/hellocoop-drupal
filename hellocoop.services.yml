@@ -3,29 +3,35 @@ services:
     class: Drupal\hellocoop\Routing\RouteSubscriber
     tags:
       - { name: event_subscriber }
+
   hellocoop.cache_clear_subscriber:
     class: 'Drupal\hellocoop\EventSubscriber\CacheClearSubscriber'
     tags:
       - { name: 'event_subscriber' }
-  hellocoop.hello_request:
+
+  hellocoop.http_request_service:
     class: 'Drupal\hellocoop\HelloRequest\HelloRequest'
     arguments: ['@request_stack']
-  
-  hellocoop.hello_response:
+
+  hellocoop.http_response_service:
     class: 'Drupal\hellocoop\HelloResponse\HelloResponse'
-  
+
   hellocoop.page_renderer:
     class: 'Drupal\hellocoop\Renderers\PageRenderer'
     arguments: ['@renderer']
-  
-  hellocoop.config:
+
+  hellocoop.config_service:
     class: 'HelloCoop\Config\HelloConfig'
     factory: ['@hellocoop.config_factory', 'createConfig']
-  
-  hellocoop.hello_client:
-    class: 'HelloCoop\HelloClient'
-    arguments: ['@hellocoop.config', '@hellocoop.hello_request', '@hellocoop.hello_response', '@hellocoop.page_renderer']
-    
+
+  hellocoop.client_service:
+    class: 'Drupal\hellocoop\HelloClient'
+    arguments: ['@entity_type.manager', '@file.repository']
+
   hellocoop.config_factory:
-    class: 'Drupal\hellocoop\Service\HelloConfigFactory'
+    class: 'Drupal\hellocoop\HelloConfigFactory'
+    arguments: ['@hellocoop.client_service', '@config.factory']
+
+  hellocoop.drupal_client_service:
+    class: 'Drupal\hellocoop\HelloClient'
     arguments: ['@entity_type.manager', '@file.repository']

@@ -33,13 +33,6 @@ jobs:
     - name: Install dependencies
       run: ddev composer install
 
-    # Step 6: Set up Drupal environment
-    - name: Set up Drupal
-      run: |
-        ddev drush si --yes \
-          --db-url=mysql://db:db@db/db \
-          --site-name="Test Site"
-
-    # Step 7: Run PHPUnit tests
+    # Step 6: Run PHPUnit tests
     - name: Run PHPUnit tests
       run: ddev phpunit
