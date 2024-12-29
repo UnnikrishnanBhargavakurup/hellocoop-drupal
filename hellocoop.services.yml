@@ -34,4 +34,4 @@ services:
 
   hellocoop.drupal_client_service:
     class: 'Drupal\hellocoop\HelloClient'
-    arguments: ['@entity_type.manager', '@file.repository']
+    arguments: ['@entity_type.manager', '@file.repository', '@externalauth.externalauth']

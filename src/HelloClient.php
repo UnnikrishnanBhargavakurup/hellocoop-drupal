@@ -14,9 +14,11 @@ namespace Drupal\hellocoop;
 use Drupal\file\FileInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\FileRepositoryInterface;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\file\Entity\File;
 use Drupal\user\Entity\User;
+use Drupal\externalauth\ExternalAuthInterface;
 
 /**
  * Provides functionality for managing HelloCoop user login and logout.
@@ -24,11 +26,11 @@ use Drupal\user\Entity\User;
 class HelloClient {
 
   /**
-   * The entity type manager service.
+   * The User entity storage.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityStorageInterface
    */
-  protected EntityTypeManagerInterface $entityTypeManager;
+  protected EntityStorageInterface $userStorage;
 
   /**
    * The file repository service.
@@ -36,6 +38,13 @@ class HelloClient {
    * @var \Drupal\file\FileRepositoryInterface
    */
   protected FileRepositoryInterface $fileRepository;
+
+  /**
+   * The external auth.
+   *
+   * @var \Drupal\externalauth\ExternalAuthInterface
+   */
+  protected ExternalAuthInterface $externalAuth;
 
   /**
    * Constructs a HelloClient object.
@@ -47,10 +56,12 @@ class HelloClient {
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    FileRepositoryInterface $fileRepository
+    FileRepositoryInterface $fileRepository,
+    ExternalAuthInterface $externalAuth
   ) {
-    $this->entityTypeManager = $entityTypeManager;
+    $this->userStorage = $entityTypeManager->getStorage('user');
     $this->fileRepository = $fileRepository;
+    $this->externalAuth = $externalAuth;
   }
 
   /**
@@ -60,11 +71,16 @@ class HelloClient {
    *   An associative array containing user information.
    */
   public function loginUpdate(array $payload): void {
-    $user = $this->loadOrCreateUser($payload);
+    $user = $this->loadUser($payload);
+
+    if(!$user) {
+      $user = $this->createUser($payload);
+    }
+
     $this->updateUserFields($user, $payload);
     $user->save();
     \Drupal::moduleHandler()->invokeAll('hellocoop_user_login', ['user' => $user]);
-    user_login_finalize($user);
+    $this->externalAuth->userLoginFinalize($user, $payload['sub'], 'hellocoop');
   }
 
   /**
@@ -84,23 +100,28 @@ class HelloClient {
    * @return \Drupal\user\Entity\User
    *   The loaded or created user entity.
    */
-  private function loadOrCreateUser(array $payload): User {
-    $users = $this->entityTypeManager->getStorage('user')
-      ->loadByProperties(['mail' => $payload['email']]);
+  private function loadUser(array $payload): User {
+    /** @var \Drupal\user\UserInterface|bool $account */
+    return $this->externalAuth->load($payload['sub'], 'hellocoop');
+  }
 
-    $user = $users ? reset($users) : NULL;
-
-    if (!$user) {
-      $user = User::create([
-        'name' => $payload['name'],
-        'mail' => $payload['email'],
-        'status' => 1, // Active user.
-      ]);
-      $user->enforceIsNew();
-      \Drupal::moduleHandler()->invokeAll('hellocoop_user_create', ['user' => $user]);
-    }
-
-    return $user;
+    /**
+   * Loads an existing user or creates a new one.
+   *
+   * @param array $payload
+   *   The user data payload.
+   *
+   * @return \Drupal\user\Entity\User
+   *   The loaded or created user entity.
+   */
+  private function createUser(array $payload): User {
+    $userData = [
+      'name' => $payload['name'],
+      'mail' => $payload['email'],
+      'init' => $payload['email'],
+      'status' => 1, // Active user.
+    ];
+    return $this->externalAuth->register($payload['sub'], 'hellocoop', $userData);
   }
 
   /**
@@ -112,11 +133,21 @@ class HelloClient {
    *   The user data payload.
    */
   private function updateUserFields(User $user, array $payload): void {
+    
     if (isset($payload['name']) && !empty($payload['name'])) {
       $user->set('name', $payload['name']);
     }
 
-    $this->updateUserPicture($user, $payload['picture'] ?? NULL);
+    $accountByMail = $this->userStorage->loadByProperties(['mail' => $payload['email']]);
+    $accountByMail = $accountByMail ? reset($accountByMail) : NULL;
+
+    if (empty($accountByMail) || ($accountByMail->id() == $user->id())) {
+      $user->set('mail', $payload['email']);
+    }
+
+    if(isset($payload['picture'])) {
+      $this->updateUserPicture($user, $payload['picture']);
+    }
 
     // Additional fields can be added here with proper validations.
     // Example:
@@ -144,30 +175,28 @@ class HelloClient {
    *
    * @param \Drupal\user\Entity\User $user
    *   The user entity to update.
-   * @param string|null $pictureUrl
+   * @param string $pictureUrl
    *   The URL of the profile picture.
    *
    * @throws \LogicException
    *   If the profile picture cannot be saved.
    */
-  private function updateUserPicture(User $user, ?string $pictureUrl): void {
-    if ($pictureUrl) {
-      $externalImage = $this->saveUserImageAsFile($pictureUrl);
-      if ($externalImage && $externalImage->getFileUri()) {
-        $file = File::create([
-          'uri' => $externalImage->getFileUri(),
-        ]);
-        $file->save();
-        if ($file->id()) {
-          $user->set('user_picture', $file->id());
-        }
-        else {
-          throw new \LogicException('Failed to save file entity or retrieve its ID.');
-        }
+  private function updateUserPicture(User $user, string $pictureUrl): void {
+    $externalImage = $this->saveUserImageAsFile($pictureUrl);
+    if ($externalImage && $externalImage->getFileUri()) {
+      $file = File::create([
+        'uri' => $externalImage->getFileUri(),
+      ]);
+      $file->save();
+      if ($file->id()) {
+        $user->set('user_picture', $file->id());
       }
       else {
-        throw new \LogicException('Failed to save external image as file.');
+        throw new \LogicException('Failed to save file entity or retrieve its ID.');
       }
+    }
+    else {
+      throw new \LogicException('Failed to save external image as file.');
     }
   }
 

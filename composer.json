@@ -2,6 +2,7 @@
     "name": "drupal/hellocoop",
     "type": "drupal-module",
     "description": "Hellō Identity Provider, enables users to register and log in using their choice of popular social logins, email, or phone—without tracking them.",
+    "keywords": ["drupal", "identity provider", "social login"],
     "homepage": "https://drupal.org/project/hellocoop",
     "license": "MIT",
     "minimum-stability": "dev",
@@ -19,7 +20,8 @@
     },
     "require": {
         "symfony/symfony": "^7.2",
-        "unnikrishnanbhargavakurup/hellocoop": "^0.0.2"
+        "unnikrishnanbhargavakurup/hellocoop": "^0.0.2",
+        "drupal/externalauth": "^2.0"
     },
     "config": {
         "allow-plugins": {

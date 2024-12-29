@@ -21,6 +21,9 @@ jobs:
     - name: Set up DDEV
       uses: ddev/github-action-setup-ddev@v1
 
+    - name: Configure DDEV for Drupal
+      run: ddev config --project-type=drupal --docroot=web --php-version=11 --corepack-enable --project-name=hellocoop
+
     # Step 3: Install DDEV Drupal Contrib add-on
     - name: Install DDEV Drupal Contrib add-on
       run: ddev add-on get ddev/ddev-drupal-contrib
@@ -30,8 +33,8 @@ jobs:
       run: ddev start
 
     # Step 5: Install composer dependencies
-    - name: Install dependencies
-      run: ddev composer install
+    - name: Symlink all root files/dirs into web.modules/custom/hellocoop
+      run: ddev symlink-project
 
     # Step 6: Run PHPUnit tests
     - name: Run PHPUnit tests

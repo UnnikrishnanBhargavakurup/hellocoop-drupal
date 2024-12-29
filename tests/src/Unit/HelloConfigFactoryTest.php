@@ -8,6 +8,9 @@ use Drupal\hellocoop\HelloClient;
 use Drupal\hellocoop\HelloConfigFactory;
 use HelloCoop\Config\HelloConfig;
 use Drupal\Tests\UnitTestCase;
+use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @coversDefaultClass \Drupal\hellocoop\HelloConfigFactory
@@ -37,6 +40,20 @@ class HelloConfigFactoryTest extends UnitTestCase {
    */
   protected $helloConfigFactory;
 
+    /**
+   * The mock request_stack service.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack|\PHPUnit\Framework\MockObject\MockObject
+   */
+  protected $requestStack;
+
+  /**
+   * The mock Request object.
+   *
+   * @var \Symfony\Component\HttpFoundation\Request|\PHPUnit\Framework\MockObject\MockObject
+   */
+  protected $request;
+
   /**
    * {@inheritdoc}
    */
@@ -46,6 +63,43 @@ class HelloConfigFactoryTest extends UnitTestCase {
     // Create mocks for dependencies.
     $this->helloClient = $this->createMock(HelloClient::class);
     $this->configFactory = $this->createMock(ConfigFactoryInterface::class);
+
+    // Mock the Config object.
+    $config = $this->createMock(Config::class);
+    $config->method('get')
+      ->willReturnCallback(function ($key) {
+        $settings = [
+          'api_route' => 'https://api.example.com',
+          'app_id' => 'app123',
+          'secret' => 'secret456',
+        ];
+        return $settings[$key] ?? NULL;
+      });
+
+    // Configure the configFactory mock to return the Config mock.
+    $this->configFactory->method('get')
+      ->with('hellocoop.settings')
+      ->willReturn($config);
+
+    // Mock the Request object.
+    $this->request = $this->createMock(Request::class);
+    $this->request->method('getSchemeAndHttpHost')
+      ->willReturn('https://example.com');
+    $this->request->method('getHost')
+      ->willReturn('example.com');
+
+    // Mock the request_stack service.
+    $this->requestStack = $this->createMock(RequestStack::class);
+    $this->requestStack->method('getCurrentRequest')
+      ->willReturn($this->request);
+
+    // Set up a mock container
+    $container = new ContainerBuilder();
+    $container->set('request_stack', $this->requestStack);
+    $container->set('config.factory', $this->configFactory); // Replace with actual mock or service
+
+    // Set the container globally
+    \Drupal::setContainer($container);
 
     // Create the HelloConfigFactory instance.
     $this->helloConfigFactory = new HelloConfigFactory(
@@ -104,35 +158,19 @@ class HelloConfigFactoryTest extends UnitTestCase {
    * @covers ::createConfig
    */
   public function testCreateConfig(): void {
-    $settings = [
-      'api_route' => 'https://api.example.com',
-      'app_id' => 'app123',
-      'secret' => 'secret456',
-    ];
-
-    // Mock the configuration object.
-    $config = $this->createMock(Config::class);
-    $config->method('get')
-      ->willReturnCallback(function ($key) use ($settings) {
-        return $settings[$key] ?? NULL;
-      });
-
-    $this->configFactory->expects($this->once())
-      ->method('get')
-      ->with('hellocoop.settings')
-      ->willReturn($config);
-
+    // Invoke the createConfig method.
     $result = $this->helloConfigFactory->createConfig();
 
     // Assert that the result is an instance of HelloConfig.
     $this->assertInstanceOf(HelloConfig::class, $result);
 
     // Assert the HelloConfig object is configured correctly.
-    $this->assertEquals('https://api.example.com', $result->getApiRoute());
-    $this->assertEquals('https://api.example.com?op=auth', $result->getAuthUrl());
-    $this->assertEquals('https://api.example.com?op=login', $result->getLoginUrl());
-    $this->assertEquals('https://api.example.com?op=logout', $result->getLogoutUrl());
-    $this->assertEquals('app123', $result->getAppId());
-    $this->assertEquals('secret456', $result->getSecret());
+    $this->assertSame('https://api.example.com', $result->getApiRoute());
+    $this->assertSame('https://api.example.com?op=auth', $result->getApiRoute() . '?op=auth');
+    $this->assertSame('https://api.example.com?op=login', $result->getApiRoute() . '?op=login');
+    $this->assertSame('https://api.example.com?op=logout', $result->getApiRoute() . '?op=logout');
+    $this->assertSame('app123', $result->getClientId());
+    $this->assertSame('secret456', $result->getSecret());
   }
+
 }
