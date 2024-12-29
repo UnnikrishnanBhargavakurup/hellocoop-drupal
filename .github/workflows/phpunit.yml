@@ -22,7 +22,7 @@ jobs:
       uses: ddev/github-action-setup-ddev@v1
 
     - name: Configure DDEV for Drupal
-      run: ddev config --project-type=drupal --docroot=web --php-version=11 --corepack-enable --project-name=hellocoop
+      run: ddev config --project-type=drupal --docroot=web --php-version=8.3 --corepack-enable --project-name=hellocoop
 
     # Step 3: Install DDEV Drupal Contrib add-on
     - name: Install DDEV Drupal Contrib add-on
