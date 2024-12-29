@@ -19,6 +19,7 @@
         "source": "https://git.drupalcode.org/project/hellocoop"
     },
     "require": {
+        "php": ">=8.1.0",
         "symfony/symfony": "^7.2",
         "unnikrishnanbhargavakurup/hellocoop": "^0.0.2",
         "drupal/externalauth": "^2.0"
