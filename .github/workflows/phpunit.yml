@@ -28,14 +28,18 @@ jobs:
     - name: Install DDEV Drupal Contrib add-on
       run: ddev add-on get ddev/ddev-drupal-contrib
 
-    # Step 4: Start DDEV
+    # Step 4: Install phpunit
+    - name: Install DDEV Drupal Contrib add-on
+      run: ddev composer require --dev phpunit/phpunit
+
+    # Step 5: Start DDEV
     - name: Start DDEV
       run: ddev start
 
-    # Step 5: Install composer dependencies
+    # Step 6: Install composer dependencies
     - name: Symlink all root files/dirs into web.modules/custom/hellocoop
       run: ddev symlink-project
 
-    # Step 6: Run PHPUnit tests
+    # Step 7: Run PHPUnit tests
     - name: Run PHPUnit tests
       run: ddev phpunit
