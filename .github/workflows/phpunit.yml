@@ -30,7 +30,7 @@ jobs:
 
     # Step 4: Install phpunit
     - name: Install DDEV Drupal Contrib add-on
-      run: ddev composer require --dev phpunit/phpunit
+      run: ddev composer install
 
     # Step 5: Start DDEV
     - name: Start DDEV

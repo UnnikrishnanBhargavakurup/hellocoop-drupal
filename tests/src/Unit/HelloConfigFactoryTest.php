@@ -7,7 +7,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\hellocoop\HelloClient;
 use Drupal\hellocoop\HelloConfigFactory;
 use HelloCoop\Config\HelloConfig;
-use Drupal\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * Unit test for the HelloConfigFactory class.
  */
-class HelloConfigFactoryTest extends UnitTestCase {
+class HelloConfigFactoryTest extends TestCase {
 
   /**
    * The mock HelloClient service.

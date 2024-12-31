@@ -22,7 +22,6 @@ Thumbs.db
 phpcs.xml
 
 # Ignore PHPUnit and other test framework files
-phpunit.xml
 phpunit.xml.dist
 
 # Ignore log files
