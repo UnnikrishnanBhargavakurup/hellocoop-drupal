@@ -20,17 +20,22 @@ services:
     class: 'Drupal\hellocoop\Renderers\PageRenderer'
     arguments: ['@renderer']
 
-  hellocoop.config_service:
-    class: 'HelloCoop\Config\HelloConfig'
-    factory: ['@hellocoop.config_factory', 'createConfig']
-
   hellocoop.client_service:
-    class: 'Drupal\hellocoop\HelloClient'
-    arguments: ['@entity_type.manager', '@file.repository']
+    class: 'HelloCoop\HelloClient'
+    factory: ['@hellocoop.client_service_factory', 'createClient']
+    arguments: 
+      - '@hellocoop.http_request_service'
+      - '@hellocoop.http_response_service'
+      - '@hellocoop.page_renderer'
 
-  hellocoop.config_factory:
+  hellocoop.client_service_factory:
+    class: 'Drupal\hellocoop\HelloClientFactory'
+    arguments:
+      - '@hellocoop.client_config_factory'
+
+  hellocoop.client_config_factory:
     class: 'Drupal\hellocoop\HelloConfigFactory'
-    arguments: ['@hellocoop.client_service', '@config.factory']
+    arguments: ['@hellocoop.drupal_client_service', '@config.factory']
 
   hellocoop.drupal_client_service:
     class: 'Drupal\hellocoop\HelloClient'

@@ -19,6 +19,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\file\Entity\File;
 use Drupal\user\Entity\User;
 use Drupal\externalauth\ExternalAuthInterface;
+use Drupal\user\UserInterface;
 
 /**
  * Provides functionality for managing HelloCoop user login and logout.
@@ -80,6 +81,7 @@ class HelloClient {
     $this->updateUserFields($user, $payload);
     $user->save();
     \Drupal::moduleHandler()->invokeAll('hellocoop_user_login', ['user' => $user]);
+
     $this->externalAuth->userLoginFinalize($user, $payload['sub'], 'hellocoop');
   }
 
@@ -100,7 +102,7 @@ class HelloClient {
    * @return \Drupal\user\Entity\User
    *   The loaded or created user entity.
    */
-  private function loadUser(array $payload): User {
+  private function loadUser(array $payload): bool | UserInterface{
     /** @var \Drupal\user\UserInterface|bool $account */
     return $this->externalAuth->load($payload['sub'], 'hellocoop');
   }
