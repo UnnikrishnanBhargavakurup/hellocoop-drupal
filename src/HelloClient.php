@@ -16,7 +16,6 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\FileRepositoryInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\file\Entity\File;
 use Drupal\user\Entity\User;
 use Drupal\externalauth\ExternalAuthInterface;
 use Drupal\user\UserInterface;
@@ -32,6 +31,13 @@ class HelloClient {
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected EntityStorageInterface $userStorage;
+
+  /**
+   * The User entity storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected EntityStorageInterface $fileStorage;
 
   /**
    * The file repository service.
@@ -61,6 +67,7 @@ class HelloClient {
     ExternalAuthInterface $externalAuth
   ) {
     $this->userStorage = $entityTypeManager->getStorage('user');
+    $this->fileStorage = $entityTypeManager->getStorage('file');
     $this->fileRepository = $fileRepository;
     $this->externalAuth = $externalAuth;
   }
@@ -186,10 +193,12 @@ class HelloClient {
   private function updateUserPicture(User $user, string $pictureUrl): void {
     $externalImage = $this->saveUserImageAsFile($pictureUrl);
     if ($externalImage && $externalImage->getFileUri()) {
-      $file = File::create([
+      $file = $this->fileStorage->create([
         'uri' => $externalImage->getFileUri(),
       ]);
+
       $file->save();
+
       if ($file->id()) {
         $user->set('user_picture', $file->id());
       }

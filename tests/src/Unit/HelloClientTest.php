@@ -10,9 +10,14 @@ use Drupal\file\FileRepositoryInterface;
 use Drupal\externalauth\ExternalAuthInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\user\Entity\User;
+use Drupal\file\Entity\File;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\file\FileInterface;
 
 
 /**
@@ -56,35 +61,60 @@ class HelloClientTest extends TestCase {
   protected $httpClientMock;
 
   /**
+   * Mock for the HTTP client service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface|\PHPUnit\Framework\MockObject\MockObject
+   */
+  protected ModuleHandlerInterface $moduleHandlerMock;
+
+  /**
+   * Mock for the user storage service.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface|\PHPUnit\Framework\MockObject\MockObject
+   */
+  protected $userStorageMock;
+
+  /**
+   * Mock for the user storage service.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface|\PHPUnit\Framework\MockObject\MockObject
+   */
+  protected $fileStorageMock;
+
+  /**
    * Sets up the test environment by creating mock services and setting up the container.
    */
   protected function setUp(): void {
-    // Create mock for the file repository service.
     $this->fileRepositoryMock = $this->createMock(FileRepositoryInterface::class);
-
-    // Create mock for the entity type manager service.
     $this->entityTypeManagerMock = $this->createMock(EntityTypeManagerInterface::class);
+    $this->userStorageMock = $this->createMock(EntityStorageInterface::class);
+    $this->fileStorageMock = $this->createMock(EntityStorageInterface::class);
 
-    // Create mock for the external authentication service.
+    $this->entityTypeManagerMock->expects($this->exactly(2))
+    ->method('getStorage')
+    ->willReturnMap([
+        ['user', $this->userStorageMock],
+        ['file', $this->fileStorageMock],
+    ]);
+
     $this->externalAuthMock = $this->createMock(ExternalAuthInterface::class);
+    $this->moduleHandlerMock = $this->createMock(ModuleHandlerInterface::class);
 
-    // Create mock for the HTTP client.
     $this->httpClientMock = $this->createMock(Client::class);
-    $mockResponse = $this->createMock(\Psr\Http\Message\ResponseInterface::class);
-    $mockStream = $this->createMock(\Psr\Http\Message\StreamInterface::class);
+    $mockResponse = $this->createMock(ResponseInterface::class);
+    $mockStream = $this->createMock(StreamInterface::class);
 
-    // Define behavior for the mock HTTP response.
+    // Mock HTTP client behavior for profile picture.
     $mockStream->method('__toString')->willReturn('mocked image data');
     $mockResponse->method('getBody')->willReturn($mockStream);
     $this->httpClientMock->method('get')->willReturn($mockResponse);
 
-    // Set up the container and add services.
     $this->container = new ContainerBuilder();
     $this->container->set('file.repository', $this->fileRepositoryMock);
     $this->container->set('entity_type.manager', $this->entityTypeManagerMock);
     $this->container->set('http_client', $this->httpClientMock);
+    $this->container->set('module_handler', $this->moduleHandlerMock);
 
-    // Set the container in the global Drupal container.
     \Drupal::setContainer($this->container);
   }
 
@@ -94,55 +124,86 @@ class HelloClientTest extends TestCase {
   public function testLoginUpdate(): void {
     // Prepare mock payload.
     $payload = [
+      'sub' => 'sub_vvCgtpv35lDgQpHtxmpvmnxK_2nZ',
       'email' => 'test@example.com',
       'name' => 'Test User',
       'picture' => 'http://example.com/image.jpg',
     ];
 
-    // Mock user storage.
-    $userStorageMock = $this->createMock(EntityStorageInterface::class);
-    $this->entityTypeManagerMock->expects($this->once())
-      ->method('getStorage')
-      ->with('user')
-      ->willReturn($userStorageMock);
-
-    // Mock user entity.
+    // Mock existing user loading.
     $userMock = $this->createMock(User::class);
-    $userMock->expects($this->once())->method('save');
+    $userMock->method('id')->willReturn(1);
+    $this->externalAuthMock->method('load')
+      ->with($payload['sub'], 'hellocoop')
+      ->willReturn(false);
 
-    // Mock externalAuth to load user.
-    $this->externalAuthMock->expects($this->once())
-      ->method('load')
-      ->with('test@example.com', 'hellocoop')
+    // Mock user creation.
+    $this->externalAuthMock->method('register')
+      ->with($payload['sub'], 'hellocoop', [
+        'name' => $payload['name'],
+        'mail' => $payload['email'],
+        'init' => $payload['email'],
+        'status' => 1,
+      ])
       ->willReturn($userMock);
 
-    // Instantiate the HelloClient.
-    $client = new HelloClient($this->entityTypeManagerMock, $this->fileRepositoryMock, $this->externalAuthMock);
+    // Mock user field updates.
+    $userMock->expects($this->exactly(3))
+    ->method('set')
+    ->willReturnCallback(function ($key, $value) use ($payload) {
+        static $callCount = 0;
+        $callCount++;
 
-    // Test loginUpdate method.
-    $client->loginUpdate($payload);
+        switch ($callCount) {
+            case 1:
+                $this->assertEquals('name', $key);
+                $this->assertEquals($payload['name'], $value);
+                break;
+            case 2:
+                $this->assertEquals('mail', $key);
+                $this->assertEquals($payload['email'], $value);
+                break;
+            case 3:
+                $this->assertEquals('user_picture', $key);
+                $this->assertEquals(123, $value);
+                break;
+            default:
+                $this->fail('Unexpected call to set method.');
+        }
+    });
 
-    // Assertions can be extended for additional scenarios.
-  }
+    $userMock->expects($this->once())->method('save');
 
-  /**
-   * Tests the logOut method of the HelloClient class.
-   */
-  public function testLogOut(): void {
-    // Mock module handler to simulate invoking hooks.
-    $moduleHandlerMock = $this->createMock(\Drupal\Core\Extension\ModuleHandlerInterface::class);
-    $moduleHandlerMock->expects($this->once())
+    $fileMock = $this->createMock(FileInterface::class);
+    $fileMock->method('getFileUri')->willReturn('public://user_pictures/mock_profile.jpg');
+
+    // Mock saving the user profile picture.
+    $this->fileRepositoryMock->method('writeData')->willReturn($fileMock);
+
+    $this->fileStorageMock->method('create')
+    ->willReturnCallback(function ($values) {
+        $fileMock = $this->createMock(File::class);
+        $fileMock->method('save')->willReturn(true);
+        $fileMock->method('id')->willReturn(123); // Mock file ID
+        return $fileMock;
+    });
+
+    $this->userStorageMock->method('loadByProperties')
+      ->with(['mail' => $payload['email']])
+      ->willReturn([]);
+
+    // Mock module handler for login hook.
+    $this->moduleHandlerMock->expects($this->once())
       ->method('invokeAll')
-      ->with('hellocoop_user_logout', []);
+      ->with('hellocoop_user_login', ['user' => $userMock]);
 
-    // Set the mocked module handler in the container.
-    $this->container->set('module_handler', $moduleHandlerMock);
+    // Test the client.
+    $client = new HelloClient(
+      $this->entityTypeManagerMock,
+      $this->fileRepositoryMock,
+      $this->externalAuthMock
+    );
 
-    // Mock the user logout function.
-    $this->expectNotToPerformAssertions();
-
-    // Instantiate the HelloClient and test the method.
-    $client = new HelloClient($this->entityTypeManagerMock, $this->fileRepositoryMock, $this->externalAuthMock);
-    $client->logOut();
+    $client->loginUpdate($payload);
   }
 }
