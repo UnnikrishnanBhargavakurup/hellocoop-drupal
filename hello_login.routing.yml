@@ -1,14 +1,14 @@
 hello_login_config_form:
   path: '/admin/config/people/hello_login'
   defaults:
-    _form: '\Drupal\HelloLogin\Form\HelloLoginConfigForm'
+    _form: '\Drupal\hello_login\Form\HelloLoginConfigForm'
     _title: 'Hello Login Configuration'
   requirements:
     _permission: 'administer site configuration'
 hello_login.api_endpoint:
   path: '/api/hellocoop'
   defaults:
-    _controller: '\Drupal\HelloLogin\Controller\HelloLoginController::handle'
+    _controller: '\Drupal\hello_login\Controller\HelloLoginController::handle'
     _title: 'API Endpoint'
   requirements:
     _permission: 'access content'

@@ -1,23 +1,23 @@
 services:
   hello_login.route_subscriber:
-    class: Drupal\HelloLogin\Routing\RouteSubscriber
+    class: Drupal\hello_login\Routing\RouteSubscriber
     tags:
       - { name: event_subscriber }
 
   hello_login.cache_clear_subscriber:
-    class: 'Drupal\HelloLogin\EventSubscriber\CacheClearSubscriber'
+    class: 'Drupal\hello_login\EventSubscriber\CacheClearSubscriber'
     tags:
       - { name: 'event_subscriber' }
 
   hello_login.http_request_service:
-    class: 'Drupal\HelloLogin\HelloRequest\HelloRequest'
+    class: 'Drupal\hello_login\HelloRequest\HelloRequest'
     arguments: ['@request_stack']
 
   hello_login.http_response_service:
-    class: 'Drupal\HelloLogin\HelloResponse\HelloResponse'
+    class: 'Drupal\hello_login\HelloResponse\HelloResponse'
 
   hello_login.page_renderer:
-    class: 'Drupal\HelloLogin\Renderers\PageRenderer'
+    class: 'Drupal\hello_login\Renderers\PageRenderer'
     arguments: ['@renderer']
 
   hello_login.client_service:
@@ -29,14 +29,14 @@ services:
       - '@hello_login.page_renderer'
 
   hello_login.client_service_factory:
-    class: 'Drupal\HelloLogin\HelloClientFactory'
+    class: 'Drupal\hello_login\HelloClientFactory'
     arguments:
       - '@hello_login.client_config_factory'
 
   hello_login.client_config_factory:
-    class: 'Drupal\HelloLogin\HelloConfigFactory'
+    class: 'Drupal\hello_login\HelloConfigFactory'
     arguments: ['@hello_login.drupal_client_service', '@config.factory']
 
   hello_login.drupal_client_service:
-    class: 'Drupal\HelloLogin\HelloClient'
+    class: 'Drupal\hello_login\HelloClient'
     arguments: ['@entity_type.manager', '@file.repository', '@externalauth.externalauth']

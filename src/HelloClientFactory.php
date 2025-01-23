@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\HelloLogin;
+namespace Drupal\hello_login;
 
 use HelloCoop\HelloClient;
 

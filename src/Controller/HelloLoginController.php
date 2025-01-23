@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\HelloLogin\Controller;
+namespace Drupal\hello_login\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;

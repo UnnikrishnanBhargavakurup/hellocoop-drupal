@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\HelloLogin\Renderers;
+namespace Drupal\hello_login\Renderers;
 
 use Drupal\Core\Render\RendererInterface;
 use HelloCoop\Renderers\PageRendererInterface;
@@ -92,7 +92,7 @@ class PageRenderer implements PageRendererInterface {
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   The service container.
    *
-   * @return \Drupal\HelloLogin\Renderers\PageRenderer
+   * @return \Drupal\hello_login\Renderers\PageRenderer
    *   The PageRenderer instance.
    */
   public static function create(ContainerInterface $container) {

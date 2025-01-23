@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\HelloLogin\EventSubscriber;
+namespace Drupal\hello_login\EventSubscriber;
 
 use Drupal\Core\Config\ConfigEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

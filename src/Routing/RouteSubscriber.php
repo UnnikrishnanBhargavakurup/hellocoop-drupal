@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\HelloLogin\Routing;
+namespace Drupal\hello_login\Routing;
 
 use Drupal\Core\Routing\RouteSubscriberBase;
 use Symfony\Component\Routing\RouteCollection;

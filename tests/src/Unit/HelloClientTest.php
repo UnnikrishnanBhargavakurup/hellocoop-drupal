@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\HelloLogin\Unit;
 
-use Drupal\HelloLogin\HelloClient;
+use Drupal\hello_login\HelloClient;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\file\FileRepositoryInterface;
 use Drupal\externalauth\ExternalAuthInterface;

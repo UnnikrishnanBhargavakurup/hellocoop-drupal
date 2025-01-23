@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 /**
  * @file
- * Contains \Drupal\HelloLogin\HelloClient.
+ * Contains \Drupal\hello_login\HelloClient.
  *
  * Provides functionality to manage user login, creation, updates, and logout
  * within the HelloCoop module. It handles user data processing, profile picture
  * management, and invokes relevant events for custom extensions.
  */
 
-namespace Drupal\HelloLogin;
+namespace Drupal\hello_login;
 
 use Drupal\file\FileInterface;
 use Drupal\Core\File\FileSystemInterface;

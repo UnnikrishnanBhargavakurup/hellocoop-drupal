@@ -6,8 +6,8 @@ namespace Drupal\Tests\HelloLogin\Unit;
 
 use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\HelloLogin\HelloClient;
-use Drupal\HelloLogin\HelloConfigFactory;
+use Drupal\hello_login\HelloClient;
+use Drupal\hello_login\HelloConfigFactory;
 use HelloCoop\Config\HelloConfig;
 use PHPUnit\Framework\TestCase;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @coversDefaultClass \Drupal\HelloLogin\HelloConfigFactory
+ * @coversDefaultClass \Drupal\hello_login\HelloConfigFactory
  *
  * Unit test for the HelloConfigFactory class.
  */
@@ -24,7 +24,7 @@ class HelloConfigFactoryTest extends TestCase {
   /**
    * The mock HelloClient service.
    *
-   * @var \Drupal\HelloLogin\HelloClient|\PHPUnit\Framework\MockObject\MockObject
+   * @var \Drupal\hello_login\HelloClient|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $helloClient;
 
@@ -38,7 +38,7 @@ class HelloConfigFactoryTest extends TestCase {
   /**
    * The HelloConfigFactory instance under test.
    *
-   * @var \Drupal\HelloLogin\HelloConfigFactory
+   * @var \Drupal\hello_login\HelloConfigFactory
    */
   protected $helloConfigFactory;
 

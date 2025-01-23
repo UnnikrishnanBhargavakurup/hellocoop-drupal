@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\HelloLogin\Form;
+namespace Drupal\hello_login\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
