@@ -55,4 +55,23 @@ function hello_login_form_alter(array &$form, FormStateInterface $form_state, $f
     $form['#attached']['drupalSettings']['hello_login']['provider_hint'] =
       implode('+', $provider_hint);
   }
+
+  /**
+   * Implements hook_theme().
+   */
+  // function hello_login_theme($existing, $type, $theme, $path) {
+  //   return [
+  //     'wildcard_console_page' => [
+  //       'variables' => [
+  //         'uri' => NULL,
+  //         'target_uri' => NULL,
+  //         'app_name' => NULL,
+  //         'redirect_uri' => NULL,
+  //       ],
+  //       'template' => 'wildcard-console-page',
+  //       'path' => \Drupal::service('extension.list.module')->getPath('hello_login') . '/templates',
+  //     ],
+  //   ];
+  // }
+
 }
