@@ -1,4 +1,4 @@
-hellocoop.settings:
+hello_login.settings:
   type: config_object
   label: 'HelloCoop Settings'
   mapping:

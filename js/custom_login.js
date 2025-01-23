@@ -2,9 +2,9 @@
     Drupal.behaviors.customLoginButton = {
       attach: function (context) {
 
-        const baseUrl = drupalSettings.hellocoop.baseUrl;
-        const scope = drupalSettings.hellocoop.scope;
-        const provider_hint = drupalSettings.hellocoop.provider_hint;
+        const baseUrl = drupalSettings.hello_login.baseUrl;
+        const scope = drupalSettings.hello_login.scope;
+        const provider_hint = drupalSettings.hello_login.provider_hint;
 
         const buttons = context.querySelectorAll('.hello-btn');
         buttons.forEach(button => {

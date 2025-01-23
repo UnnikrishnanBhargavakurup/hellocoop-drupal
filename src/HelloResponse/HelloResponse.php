@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\hellocoop\HelloResponse;
+namespace Drupal\HelloLogin\HelloResponse;
 
 use HelloCoop\HelloResponse\HelloResponseInterface;
 use Symfony\Component\HttpFoundation\Response;

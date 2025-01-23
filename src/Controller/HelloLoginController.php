@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\hellocoop\Controller;
+namespace Drupal\HelloLogin\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -9,7 +9,7 @@ use HelloCoop\HelloClient;
 /**
  * For handling callback requests from HelloCoop.
  */
-class HelloCoopController extends ControllerBase {
+class HelloLoginController extends ControllerBase {
 
   /**
    * The HelloClient service.
@@ -33,7 +33,7 @@ class HelloCoopController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('hellocoop.client_service')
+      $container->get('hello_login.client_service')
     );
   }
 

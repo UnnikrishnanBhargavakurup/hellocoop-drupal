@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @file
- * Contains \Drupal\hellocoop\HelloConfigFactory.
+ * Contains \Drupal\HelloLogin\HelloConfigFactory.
  *
  * Provides a factory service class for creating configured HelloConfig objects.
  * It handles dependency injection and implements login and logout callback
  * functionalities used by the HelloCoop module.
  */
 
-namespace Drupal\hellocoop;
+namespace Drupal\HelloLogin;
 
 use HelloCoop\Config\HelloConfig;
-use Drupal\hellocoop\HelloClient;
+use Drupal\HelloLogin\HelloClient;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\Config;
 
@@ -28,7 +30,7 @@ class HelloConfigFactory {
   /**
    * The HelloClient service.
    *
-   * @var \Drupal\hellocoop\HelloClient
+   * @var \Drupal\HelloLogin\HelloClient
    */
   protected HelloClient $helloClient;
 
@@ -42,14 +44,14 @@ class HelloConfigFactory {
   /**
    * Constructs a HelloConfigFactory object.
    *
-   * @param \Drupal\hellocoop\HelloClient $helloClient
+   * @param \Drupal\HelloLogin\HelloClient $helloClient
    *   The HelloClient service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The configuration factory service.
    */
   public function __construct(HelloClient $helloClient, ConfigFactoryInterface $configFactory) {
     $this->helloClient = $helloClient;
-    $this->config = $configFactory->get('hellocoop.settings');
+    $this->config = $configFactory->get('hello_login.settings');
   }
 
   /**

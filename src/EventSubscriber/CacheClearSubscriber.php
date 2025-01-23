@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\hellocoop\EventSubscriber;
+namespace Drupal\HelloLogin\EventSubscriber;
 
 use Drupal\Core\Config\ConfigEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -20,13 +20,13 @@ class CacheClearSubscriber implements EventSubscriberInterface {
   }
 
   /**
-   * Rebuilds the route cache when the 'hellocoop.settings' config is saved.
+   * Rebuilds the route cache when the 'hello_login.settings' config is saved.
    */
   public function onConfigSave($event) {
     $config_name = $event->getConfig()->getName();
 
-    // Check if the 'hellocoop.settings' configuration was saved.
-    if ($config_name == 'hellocoop.settings') {
+    // Check if the 'hello_login.settings' configuration was saved.
+    if ($config_name == 'hello_login.settings') {
       // Rebuild the route cache.
       \Drupal::service('router.builder')->rebuild();
     }

@@ -1,9 +1,9 @@
 {
-    "name": "drupal/hellocoop",
+    "name": "drupal/hello_login",
     "type": "drupal-module",
     "description": "Hellō Identity Provider, enables users to register and log in using their choice of popular social logins, email, or phone—without tracking them.",
     "keywords": ["drupal", "identity provider", "social login"],
-    "homepage": "https://drupal.org/project/hellocoop",
+    "homepage": "https://drupal.org/project/hello_login",
     "license": "MIT",
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -15,8 +15,8 @@
         }
     ],
     "support": {
-        "issues": "https://www.drupal.org/project/issues/hellocoop",
-        "source": "https://git.drupalcode.org/project/hellocoop"
+        "issues": "https://www.drupal.org/project/issues/hello_login",
+        "source": "https://git.drupalcode.org/project/hello_login"
     },
     "require": {
         "php": ">=8.1.0",

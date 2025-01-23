@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\hellocoop\Form;
+namespace Drupal\HelloLogin\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -8,29 +8,29 @@ use Drupal\Core\Url;
 use Drupal\Component\Utility\UrlHelper;
 
 /**
- * For hellocoop configurations.
+ * For hello_login configurations.
  */
-class HelloCoopConfigForm extends ConfigFormBase {
+class HelloLoginConfigForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
-    return ['hellocoop.settings'];
+    return ['hello_login.settings'];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'hellocoop_config_form';
+    return 'hello_login_config_form';
   }
 
   /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('hellocoop.settings');
+    $config = $this->config('hello_login.settings');
 
     // Check if the 'client_id' parameter is present in the URL.
     $request = \Drupal::request();
@@ -124,7 +124,7 @@ class HelloCoopConfigForm extends ConfigFormBase {
    */
   private function generateQuickstartUrl(): string {
     $response_uri = Url::fromRoute(
-      'hellocoop_config_form',
+      'hello_login_config_form',
       [],
       ['absolute' => TRUE]
     );
@@ -160,7 +160,7 @@ class HelloCoopConfigForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $this->config('hellocoop.settings')
+    $this->config('hello_login.settings')
       ->set('api_route', $form_state->getValue('api_route'))
       ->set('app_id', $form_state->getValue('app_id'))
       ->set('secret', $form_state->getValue('secret'))
@@ -177,7 +177,7 @@ class HelloCoopConfigForm extends ConfigFormBase {
     $new_secret = bin2hex(random_bytes(32));
 
     // Update the secret key in configuration.
-    $this->config('hellocoop.settings')
+    $this->config('hello_login.settings')
       ->set('secret', $new_secret)
       ->save();
 

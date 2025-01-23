@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\hellocoop\HelloRequest;
+namespace Drupal\HelloLogin\HelloRequest;
 
 use HelloCoop\HelloRequest\HelloRequestInterface;
 use Symfony\Component\HttpFoundation\RequestStack;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Drupal\Tests\hellocoop\Unit;
+namespace Drupal\Tests\HelloLogin\Unit;
 
-use Drupal\hellocoop\HelloClient;
+use Drupal\HelloLogin\HelloClient;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\file\FileRepositoryInterface;
 use Drupal\externalauth\ExternalAuthInterface;
@@ -134,12 +134,12 @@ class HelloClientTest extends TestCase {
     $userMock = $this->createMock(User::class);
     $userMock->method('id')->willReturn(1);
     $this->externalAuthMock->method('load')
-      ->with($payload['sub'], 'hellocoop')
+      ->with($payload['sub'], 'hello_login')
       ->willReturn(false);
 
     // Mock user creation.
     $this->externalAuthMock->method('register')
-      ->with($payload['sub'], 'hellocoop', [
+      ->with($payload['sub'], 'hello_login', [
         'name' => $payload['name'],
         'mail' => $payload['email'],
         'init' => $payload['email'],
@@ -195,7 +195,7 @@ class HelloClientTest extends TestCase {
     // Mock module handler for login hook.
     $this->moduleHandlerMock->expects($this->once())
       ->method('invokeAll')
-      ->with('hellocoop_user_login', ['user' => $userMock]);
+      ->with('hello_login_user_login', ['user' => $userMock]);
 
     // Test the client.
     $client = new HelloClient(

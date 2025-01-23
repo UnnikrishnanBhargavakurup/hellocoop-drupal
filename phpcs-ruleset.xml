@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="hellocoop">
-  <description>Default PHP CodeSniffer configuration for hellocoop.</description>
+<ruleset name="hello_login">
+  <description>Default PHP CodeSniffer configuration for hello_login.</description>
   <file>.</file>
   <arg name="extensions" value="php,module,inc,install,test,profile,theme"/>
 
@@ -8,7 +8,7 @@
   <exclude-pattern>README.md</exclude-pattern>
 
   <rule ref="Drupal">
-    <!-- hellocoop is not yet compliant with the new deprecation format. -->
+    <!-- hello_login is not yet compliant with the new deprecation format. -->
     <exclude name="Drupal.Commenting.Deprecated"/>
     <exclude name="Drupal.Semantics.FunctionTriggerError"/>
 

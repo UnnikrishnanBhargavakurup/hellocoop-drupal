@@ -13,15 +13,15 @@ This module integrates the [Hellō Identity Provider](https://www.hello.coop/) i
 ## Requirements
 - Drupal 9.x or 10.x or 11.x
 - PHP 7.4 or higher
-- [Hellocoop PHP Library](https://github.com/UnnikrishnanBhargavakurup/hellocoop)
+- [Hellocoop PHP Library](https://github.com/UnnikrishnanBhargavakurup/hello_login)
 
 ## Installation
 
 ### Step 1: Install the Module
 1. Download and enable the module:
    ```bash
-   composer require unnikrishnanbhargavakurup/hellocoop-drupal
-   drush en hellocoop
+   composer require unnikrishnanbhargavakurup/hello_login-drupal
+   drush en hello_login
    ```
 
 2. Clear the Drupal cache:

@@ -24,7 +24,7 @@ use Drupal\Core\Form\FormStateInterface;
  * @param string $form_id
  *   The unique ID of the form being altered.
  */
-function hellocoop_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+function hello_login_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
   // Check if the form being altered is the user login form.
   if ($form_id === 'user_login_form') {
     // Add a custom login button.
@@ -38,21 +38,21 @@ function hellocoop_form_alter(array &$form, FormStateInterface $form_state, $for
     ];
 
     // Fetch configuration settings for the Hellō API route.
-    $config = \Drupal::config('hellocoop.settings');
+    $config = \Drupal::config('hello_login.settings');
     $api_route = $config->get('api_route');
 
     $scope = ['openid', 'profile', 'nickname'];
     $provider_hint = $config->get('provider_hint');
 
     // Attach a custom JavaScript library and pass the base URL via drupalSettings.
-    $form['#attached']['library'][] = 'hellocoop/custom_login';
-    $form['#attached']['drupalSettings']['hellocoop']['baseUrl'] =
+    $form['#attached']['library'][] = 'hello_login/custom_login';
+    $form['#attached']['drupalSettings']['hello_login']['baseUrl'] =
     \Drupal::request()->getSchemeAndHttpHost() . $api_route;
 
-    $form['#attached']['drupalSettings']['hellocoop']['scope'] =
+    $form['#attached']['drupalSettings']['hello_login']['scope'] =
       implode('+', $scope);
 
-    $form['#attached']['drupalSettings']['hellocoop']['provider_hint'] =
+    $form['#attached']['drupalSettings']['hello_login']['provider_hint'] =
       implode('+', $provider_hint);
   }
 }

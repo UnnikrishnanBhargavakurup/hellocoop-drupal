@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @file
- * Contains \Drupal\hellocoop\HelloClient.
+ * Contains \Drupal\HelloLogin\HelloClient.
  *
  * Provides functionality to manage user login, creation, updates, and logout
  * within the HelloCoop module. It handles user data processing, profile picture
  * management, and invokes relevant events for custom extensions.
  */
 
-namespace Drupal\hellocoop;
+namespace Drupal\HelloLogin;
 
 use Drupal\file\FileInterface;
 use Drupal\Core\File\FileSystemInterface;
@@ -87,16 +89,16 @@ class HelloClient {
 
     $this->updateUserFields($user, $payload);
     $user->save();
-    \Drupal::moduleHandler()->invokeAll('hellocoop_user_login', ['user' => $user]);
+    \Drupal::moduleHandler()->invokeAll('hello_login_user_login', ['user' => $user]);
 
-    $this->externalAuth->userLoginFinalize($user, $payload['sub'], 'hellocoop');
+    $this->externalAuth->userLoginFinalize($user, $payload['sub'], 'hello_login');
   }
 
   /**
    * Logs out the current user.
    */
   public function logOut(): void {
-    \Drupal::moduleHandler()->invokeAll('hellocoop_user_logout', []);
+    \Drupal::moduleHandler()->invokeAll('hello_login_user_logout', []);
     user_logout();
   }
 
@@ -111,7 +113,7 @@ class HelloClient {
    */
   private function loadUser(array $payload): bool | UserInterface{
     /** @var \Drupal\user\UserInterface|bool $account */
-    return $this->externalAuth->load($payload['sub'], 'hellocoop');
+    return $this->externalAuth->load($payload['sub'], 'hello_login');
   }
 
     /**
@@ -130,7 +132,7 @@ class HelloClient {
       'init' => $payload['email'],
       'status' => 1, // Active user.
     ];
-    return $this->externalAuth->register($payload['sub'], 'hellocoop', $userData);
+    return $this->externalAuth->register($payload['sub'], 'hello_login', $userData);
   }
 
   /**
@@ -230,7 +232,7 @@ class HelloClient {
       );
     }
     catch (\Exception $e) {
-      \Drupal::logger('hellocoop')->error('Failed to save external image: @message', ['@message' => $e->getMessage()]);
+      \Drupal::logger('hello_login')->error('Failed to save external image: @message', ['@message' => $e->getMessage()]);
       return NULL;
     }
   }

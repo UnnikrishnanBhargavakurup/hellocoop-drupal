@@ -1,9 +1,9 @@
-name: Hellocoop - Hellō Idp
+name: Hello Login - Hellō Idp
 type: module
 description: Hellō Identity Provider, enables users to register and log in using their choice of popular social logins, email, or phone—without tracking them.
 core_version_requirement: ^9.5 || ^10.2 || ^11
 package: 'User authentication'
-configure: hellocoop_config_form
+configure: hello_login_config_form
 dependencies:
   - drupal:file
   - externalauth:externalauth
