@@ -29,6 +29,14 @@ class HelloRequest implements HelloRequestInterface {
   /**
    * {@inheritdoc}
    */
+  public function has(string $key): bool {
+    return $this->currentRequest->query->has($key) || $this->currentRequest->request->has($key);
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
   public function fetch(string $key, $default = NULL): ?string {
     return $this->currentRequest->get($key, $default);
   }
